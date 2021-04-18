@@ -1,0 +1,151 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+Array [
+  <div>
+    <div>
+      <nav
+        className="navbar-default navbar navbar-expand navbar-light"
+      >
+        <a
+          className="navbar-brand"
+          classname="Navbar-Brand"
+          href="/"
+          variant="light"
+        >
+          <img
+            alt="icon"
+            className="icon"
+            src="/Group_Photos/Splitwiseicon.png"
+          />
+          <span
+            className="NavItem"
+          >
+            Splitwise
+          </span>
+        </a>
+        <div
+          aria-expanded={null}
+          className="justify-content-end navbar-collapse collapse"
+        >
+          <div
+            className="navbar-nav"
+            onKeyDown={[Function]}
+          >
+            <ul
+              className="nav navbar-nav navbar-right"
+            >
+              <li>
+                <button
+                  className="login-default btn btn-primary"
+                  disabled={false}
+                  type="button"
+                >
+                  <a
+                    href="/login"
+                    onClick={[Function]}
+                  >
+                    Login 
+                  </a>
+                </button>
+                or
+                 
+                <button
+                  className="Signup-default btn btn-primary"
+                  disabled={false}
+                  type="button"
+                >
+                  <a
+                    href="/signup"
+                    onClick={[Function]}
+                  >
+                    Sign Up
+                  </a>
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+    </div>
+    <div
+      className="container"
+    >
+      <div
+        className="login-form"
+      >
+        <div
+          className="main-div"
+        >
+          <div
+            className="panel"
+          >
+            <h2>
+              WELCOME TO SPLITWISE!
+            </h2>
+          </div>
+          <div
+            className="form-group"
+          >
+            <label
+              htmlFor="email"
+            >
+              EMAIL ADDRESS
+              <input
+                className="form-control"
+                formNoValidate={true}
+                id="email"
+                name="email"
+                onChange={[Function]}
+                placeholder="Email"
+                required={true}
+                type="text"
+              />
+            </label>
+          </div>
+          <div
+            className="form-group"
+          >
+            <label
+              htmlFor="email"
+            >
+              PASSSWORD
+              <input
+                className="form-control"
+                formNoValidate={true}
+                id="password"
+                name="password"
+                onChange={[Function]}
+                placeholder="Password"
+                required={true}
+                type="password"
+              />
+            </label>
+          </div>
+          <button
+            className="login-default "
+            data-testid="login"
+            formNoValidate={true}
+            onClick={[Function]}
+            type="submit"
+          >
+            Login
+          </button>
+          <p
+            className="errmsg"
+            style={
+              Object {
+                "color": "maroon",
+              }
+            }
+          >
+             
+             
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>,
+  " ",
+]
+`;

@@ -1,0 +1,135 @@
+.dashboard-flex {
+  width: 1280px;
+  min-width: 1000px;
+  margin: 0 auto;
+}
+.dashboard-box {
+  flex: auto;
+  float: left;
+  border-left: 1px solid rgb(177, 177, 177);
+  border-right: 1px solid rgb(177, 177, 177);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  width: 1080px;
+  height: 100vh;
+}
+.dashboard-heading {
+  overflow: hidden;
+  border-bottom: 1px solid #ddd;
+}
+.dashboard-heading h1 {
+  font-size: 24px;
+  font-weight: 500;
+  float: left;
+  margin-top: 20px;
+  margin-left: 25px;
+  margin-bottom: 20px;
+}
+.button-right {
+  float: right;
+  padding-top: 15px;
+  margin-right: 10px;
+  color: white;
+}
+
+.button-right li a {
+  color: white !important;
+}
+
+.dashboard-center-sec {
+  background: rgb(238, 238, 238);
+  border-bottom: 1px solid rgb(214, 214, 214);
+  color: rgb(153, 153, 153);
+  text-align: center;
+}
+
+.dashboard-center-section-block {
+  font-size: 15px;
+  display: inline-block;
+  width: 300px;
+  text-align: center;
+  padding: 10px;
+  line-height: 30px;
+  color: rgb(74, 75, 75);
+}
+
+.dashboard-block-border {
+  border-left: 1px solid rgb(196, 196, 196);
+  border-right: 1px solid rgb(196, 196, 196);
+}
+
+.tranactions-heading {
+  overflow: hidden;
+  width: 1070px;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px;
+}
+.tranactions-heading div:nth-child(1) {
+  float: left;
+  color: black;
+  margin-left: 25px;
+}
+
+.tranactions-heading div:nth-child(2) {
+  float: right;
+  color: black;
+  margin-right: 25px;
+}
+
+.transactions-owe {
+  width: 520px;
+  float: left;
+  padding-left: 20px;
+  border-right: 1px solid rgb(196, 196, 196);
+  margin-left: 10px;
+  color: #000000;
+}
+
+.transactions-owed {
+  width: 520px;
+  float: left;
+  padding-left: 20px;
+  color: #000000;
+}
+
+.profile-pic {
+  width: 30px;
+  height: 30px;
+  background-size: cover;
+  display: inline-block;
+}
+.profile-pic-header {
+  width: 20px;
+  height: 20px;
+  background-size: cover;
+  display: inline-block;
+  margin-right: 5px;
+}
+
+.transactions-owe,
+.transactions-owed {
+  display: inline-block;
+  margin-left: 10px;
+}
+
+.transactions div:nth-child(1) {
+  color: black;
+}
+
+.transactions-owe div:nth-child(2) {
+  color: #fb7a00;
+}
+
+.transactions-owed div:nth-child(2) {
+  color: #3ac3ab;
+}
+
+.totalamt-owe {
+  color: #ff652f;
+}
+
+.totalamt-owed {
+  color: #5bc5a7;
+}

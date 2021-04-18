@@ -1,0 +1,74 @@
+.mygroups-box {
+    flex:auto;
+    float: left;
+    border-left: 1px solid rgb(177, 177, 177);
+    border-right: 1px solid rgb(177, 177, 177);
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    width: 900px;
+    height:900px;
+  }
+  .mygroups-heading {
+    overflow:hidden;
+    border-bottom: 1px solid #ddd;
+  }
+  .mygroups-heading h1 {
+    font-size: 24px;
+    font-weight: 500;
+    float: left;
+    margin-top: 20px;
+    margin-left: 25px;
+    margin-bottom: 20px;
+  }
+
+  .mygroups-left-sec {
+    float:left;
+    background: rgb(255, 255, 255);
+    border-bottom: 1px solid rgb(255, 255, 255);
+    color: rgb(153, 153, 153);
+    text-align: center;
+    width: 450px;
+    height:900px;
+  }
+  .mygroups-left-section-block {
+    font-size: 15px;
+    display: inline-block;
+    width: 350px;
+    text-align: center;
+    padding: 10px;
+    line-height: 30px;
+    color: rgb(74, 75, 75);
+  
+  }
+  .mygroups-center-sec {
+    background:  rgb(255, 255, 255);;
+    border-bottom: 1px solid rgb(214, 214, 214);
+    color: rgb(153, 153, 153);
+    text-align: center;
+    height:900px;
+  }
+
+  .mygroups-center-section-block {
+    font-size: 15px;
+    display: inline-block;
+    width: 350px;
+    text-align: center;
+    padding: 10px;
+    line-height: 900px;
+    color: rgb(74, 75, 75);
+  
+  }
+  
+  .mygroups-button{
+    padding-top: 15px;
+    margin-right: 10px;
+    color: white;
+  }
+ 
+ .mygroups-button li a{
+    color: white !important;
+    }
+  
+  .mygroups-block-border {
+    border-left: 1px solid rgb(196, 196, 196);
+    border-right: 1px solid rgb(196, 196, 196);
+  }

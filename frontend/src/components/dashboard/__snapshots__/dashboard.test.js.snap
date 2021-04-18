@@ -1,0 +1,290 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+Array [
+  <div>
+    <div>
+      <nav
+        className="navbar-default navbar navbar-expand navbar-light"
+      >
+        <a
+          className="navbar-brand"
+          classname="Navbar-Brand"
+          href="/"
+          variant="light"
+        >
+          <img
+            alt="icon"
+            className="icon"
+            src="/Group_Photos/Splitwiseicon.png"
+          />
+          <span
+            className="NavItem"
+          >
+            Splitwise
+          </span>
+        </a>
+        <div
+          aria-expanded={null}
+          className="justify-content-end navbar-collapse collapse"
+        >
+          <div
+            className="navbar-nav"
+            onKeyDown={[Function]}
+          >
+            <ul
+              className="nav navbar-nav navbar-right"
+            >
+              <li>
+                <button
+                  className="login-default btn btn-primary"
+                  disabled={false}
+                  type="button"
+                >
+                  <a
+                    href="/login"
+                    onClick={[Function]}
+                  >
+                    Login 
+                  </a>
+                </button>
+                or
+                 
+                <button
+                  className="Signup-default btn btn-primary"
+                  disabled={false}
+                  type="button"
+                >
+                  <a
+                    href="/signup"
+                    onClick={[Function]}
+                  >
+                    Sign Up
+                  </a>
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+    </div>
+    <div
+      className="dashboard-flex"
+    >
+      <div>
+        <div
+          className="sidebar"
+        >
+          <div
+            className="flex-column nav"
+            onKeyDown={[Function]}
+          >
+            <div
+              className="sidebar-wrapper"
+            >
+              <ul
+                className="navlist"
+              >
+                <li
+                  className="nav-item"
+                >
+                  <li
+                    className="nav-item1"
+                  >
+                    <a
+                      aria-current={null}
+                      className="nav-link1"
+                      href="/dashboard"
+                      onClick={[Function]}
+                      style={
+                        Object {
+                          "color": "inherit",
+                          "textDecoration": "none",
+                        }
+                      }
+                    />
+                  </li>
+                   
+                  <hr />
+                  <a
+                    aria-current={null}
+                    className="nav-link1"
+                    href="/dashboard"
+                    onClick={[Function]}
+                  >
+                    Dashboard
+                  </a>
+                </li>
+                <hr />
+                <li
+                  className="nav-item1"
+                >
+                  <a
+                    aria-current={null}
+                    className="nav-link1"
+                    href="/recentactivity"
+                    onClick={[Function]}
+                  >
+                    Recent Acitivity
+                  </a>
+                </li>
+                <hr />
+                <li
+                  className="nav-item1"
+                >
+                  <a
+                    aria-current={null}
+                    className="nav-link1"
+                    href="/profile"
+                    onClick={[Function]}
+                  >
+                    My Profile
+                  </a>
+                </li>
+                <hr />
+                <li
+                  className="nav-item1"
+                >
+                  <a
+                    aria-current={null}
+                    className="nav-link1"
+                    href="/mygroups"
+                    onClick={[Function]}
+                  >
+                    My Groups
+                  </a>
+                </li>
+                <li>
+                  <a
+                    aria-current={null}
+                    className="nav-link2"
+                    href="/createnewgroup"
+                    onClick={[Function]}
+                  >
+                    + Add
+                  </a>
+                </li>
+                 
+                <hr />
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        className="dashboard-box"
+      >
+        <section
+          className="dashboard-heading-buttons"
+        >
+          <section
+            className="dashboard-heading"
+          >
+            <h1
+              data-testid="Dashboard"
+            >
+              Dashboard
+            </h1>
+            <ul
+              className="button-right"
+            >
+              <li>
+                <button
+                  className="Signup-default btn btn-primary"
+                  disabled={false}
+                  type="button"
+                >
+                  <a
+                    href="/addbill"
+                    onClick={[Function]}
+                  >
+                    Add Bill
+                  </a>
+                </button>
+                 
+                <button
+                  className="login-default btn btn-primary"
+                  disabled={false}
+                  onClick={[Function]}
+                  type="button"
+                >
+                   
+                  Settle Up
+                   
+                </button>
+              </li>
+            </ul>
+          </section>
+          <section
+            className="dashboard-center-sec"
+          >
+            <div
+              className="dashboard-center-section-block"
+            >
+              <div
+                className="title"
+              >
+                Total Balance
+              </div>
+            </div>
+            <div
+              className="dashboard-center-section-block"
+            >
+              <div
+                className="dashboard-block-border"
+              >
+                <div
+                  className="title"
+                >
+                  You Owe
+                </div>
+              </div>
+            </div>
+            <div
+              className="dashboard-center-section-block"
+            >
+              <div
+                className="title"
+              >
+                You Are Owed
+              </div>
+            </div>
+          </section>
+        </section>
+        <section
+          className="transcations-sec"
+        >
+          <div
+            className="tranactions-heading"
+          >
+            <div>
+              You Owe
+            </div>
+            <div>
+              You are owed
+            </div>
+          </div>
+          <div
+            className="transactions-owe"
+          >
+            <h2>
+              YOU OWE NOTHING
+            </h2>
+          </div>
+          <div
+            className="transactions-owed"
+          >
+            <h2>
+              YOU ARE OWED NOTHING
+            </h2>
+          </div>
+        </section>
+      </div>
+      <div
+        className="dashboard-right"
+      />
+    </div>
+  </div>,
+  " ",
+]
+`;

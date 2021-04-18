@@ -1,0 +1,48 @@
+.avatar1{
+    display: flex;
+    max-width: 500px ;
+    max-height: 300px;
+    width: auto;
+    height: auto;
+}
+
+.profilepage-block{
+        flex:auto;
+        width: 1200px;
+        height:800px;
+        padding-left: 300px; 
+        padding-top: 100px ;
+}
+
+input[type="text"] {
+    width: 200px;
+    height: 35px;
+  }
+
+  input[type="email"] {
+    width: 200px;
+    height: 35px;
+  }
+  
+.avatar-div{
+    float: left;
+    width: 300px;
+    height: 300px;
+}
+
+.center-block{
+    float: left;
+    padding-left: 30px;
+    padding-top: 30px;
+}
+
+.right-block{
+    float: right; 
+    width: 350px;
+    padding-left: 20px;
+}
+
+.savebtn{
+    float:right; 
+    width: 80px; 
+}

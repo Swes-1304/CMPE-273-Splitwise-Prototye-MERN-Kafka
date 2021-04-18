@@ -1,0 +1,8 @@
+.transcations-sec1{
+     width: '80%' ;
+}
+
+.Row {
+    display: flex;
+    flex-direction:row;
+  }

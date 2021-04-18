@@ -1,0 +1,123 @@
+.grouppage-box {
+    flex:auto;
+    float: left;
+    border-left: 1px solid rgb(177, 177, 177);
+    border-right: 1px solid rgb(177, 177, 177);
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    width: 880px;
+    height:880px;
+  }
+  .grouppage-heading {
+    overflow:hidden;
+    border-bottom: 1px solid #ddd;
+  }
+  .grouppage-heading h1 {
+    font-size: 24px;
+    font-weight: 500;
+    float: left;
+    margin-top: 20px;
+    margin-left: 25px;
+    margin-bottom: 20px;
+  }
+
+  .mygroups-center-sec {
+    background: rgb(238, 238, 238);
+    border-bottom: 1px solid rgb(214, 214, 214);
+    color: rgb(153, 153, 153);
+    text-align: center;
+  }
+
+  .mygroups-center-section-block {
+    font-size: 15px;
+    display: inline-block;
+    width: 350px;
+    text-align: center;
+    padding: 10px;
+    line-height: 30px;
+    color: rgb(74, 75, 75);
+  
+  }
+  
+  .mygroups-block-border {
+    border-left: 1px solid rgb(196, 196, 196);
+    border-right: 1px solid rgb(196, 196, 196);
+  }
+
+  .grouppage-button{
+    float:right;
+    padding-top: 15px;
+    margin-right: 10px;
+    color: white;
+  }
+ 
+ .grouppage-button li a{
+    color: white !important;
+    }
+  
+.group-expenses_1 {
+  border-left: 1px solid rgb(196, 196, 196);
+  border-right: 1px solid rgb(196, 196, 196);
+  display: flex,
+  
+}
+
+.group-expenses_1 li {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  display: inline-block; 
+  width: 90%
+}
+
+.Row {
+  display: flex;
+  flex-direction:row;
+}
+
+.Column{
+  flex: 1 1 0px;
+}
+
+.Column p {
+  color:rgb(124, 124, 124);
+}
+
+.Column h5 {
+  color: #4cad92;
+}
+
+.avatarfordisplay {
+
+    display: flex;
+    max-width: 65px ;
+    max-height: 65px;
+    width: auto;
+    height: auto;
+
+}
+
+.avatar1{
+  display: flex;
+  max-width: 500px ;
+  max-height: 300px;
+  width: auto;
+  height: auto;
+}
+.grouppage-right{
+  padding: 20px;
+  text-align: center;
+}
+
+.grouppage-right h2{
+  padding: 20px;
+  text-align: center;
+}
+
+.group-expenses-group li{
+  list-style-type: none;
+  margin: 0;
+  padding-left: 20px ;
+  display: inline-block; 
+  width: 20%; 
+  text-align: center;
+}
