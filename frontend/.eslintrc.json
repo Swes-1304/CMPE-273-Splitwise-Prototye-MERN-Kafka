@@ -1,0 +1,18 @@
+{
+    "extends": ["airbnb", "prettier"],
+    "plugins": ["prettier"],
+    "parser": "babel-eslint",
+    "env": {
+      "browser": true
+    },
+    "rules": {
+      "prettier/prettier": ["error"],
+        "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }]
+      },
+      "settings": {
+        "react" : {
+            "pragma": "React",
+            "version": "16.8"
+        }
+    }
+  }

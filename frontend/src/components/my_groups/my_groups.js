@@ -104,11 +104,11 @@ class Mygroups extends Component {
   };
 
   acceptinvitation = () => {
-    //e.preventDefault();
-    //console.log(e.target.value);
+    // e.preventDefault();
+    // console.log(e.target.value);
     this.setState({ popup: false });
     const { popup, userid, useremail, groupinvite } = this.state;
-    //const currentgrp = groupinvite;
+    // const currentgrp = groupinvite;
     const data = {
       currentgrp: groupinvite,
       userid,
@@ -137,11 +137,11 @@ class Mygroups extends Component {
   };
 
   denyinvitation = () => {
-    //e.preventDefault();
-    //console.log(e.target.value);
+    // e.preventDefault();
+    // console.log(e.target.value);
     this.setState({ popup: false });
     const { popup, userid, useremail, groupinvite } = this.state;
-    //const currentgrp = groupname;
+    // const currentgrp = groupname;
     const data = {
       currentgrp: groupinvite,
       userid,

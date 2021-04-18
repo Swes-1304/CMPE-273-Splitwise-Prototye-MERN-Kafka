@@ -165,8 +165,8 @@ class Profilepage extends Component {
           this.setState({
             updatedpic: false,
           });
-          //const redirectVar1 = <Redirect to="/dashboard" />;
-          //this.setState({ redirecttohome: redirectVar1 });
+          // const redirectVar1 = <Redirect to="/dashboard" />;
+          // this.setState({ redirecttohome: redirectVar1 });
         } else {
           this.setState({
             redirecttohome: null,
@@ -189,7 +189,7 @@ class Profilepage extends Component {
     if (!cookie.load('cookie')) {
       redirectVar = <Redirect to="/" />;
     }
-    //const { redirecttohome } = this.state;
+    // const { redirecttohome } = this.state;
     let profilepic = '/Profile_photos/default_avatar.png';
     const {
       username,
@@ -199,7 +199,8 @@ class Profilepage extends Component {
       timezone,
       language,
     } = this.state;
-
+    const { redirecttohome } = this.state;
+    console.log(redirecttohome);
     const imagename = sessionStorage.getItem('profilepic');
     console.log(imagename);
     if (imagename !== 'null') {

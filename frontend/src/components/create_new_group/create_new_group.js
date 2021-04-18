@@ -125,16 +125,15 @@ class Createnewgroup extends Component {
       if (groupmembers[i].gmemail === '') {
         alert('Please fill the username or email id');
         return;
-      } else {
-        gplist.push(groupmembers[i].gmemail);
       }
+      gplist.push(groupmembers[i].gmemail);
     }
     console.log(gplist);
 
     let duplicateExist = false;
-    duplicateExist = gplist.some((element, index) => {
-      return gplist.indexOf(element) !== index;
-    });
+    duplicateExist = gplist.some(
+      (element, index) => gplist.indexOf(element) !== index
+    );
 
     if (duplicateExist) {
       alert('Please select unique group memebers!');

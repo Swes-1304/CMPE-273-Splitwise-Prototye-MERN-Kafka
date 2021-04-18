@@ -5,7 +5,7 @@ import { Redirect } from 'react-router';
 // import { Link } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 import { Modal, Form, Image } from 'react-bootstrap';
-import { isEmpty, isNumber } from 'lodash';
+import { isEmpty } from 'lodash';
 import numeral from 'numeral';
 import Sidebarcomp from '../navbar/sidebar';
 import Navheader from '../navbar/navbar';
