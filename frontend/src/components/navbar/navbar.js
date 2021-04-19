@@ -1,4 +1,6 @@
+/* eslint-disable react/prop-types */
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import Button from 'react-bootstrap/Button';
@@ -6,10 +8,11 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import { Link } from 'react-router-dom';
 import cookie from 'react-cookies';
 import { Image } from 'react-bootstrap';
+import { userLogout } from '../../actions/loginAction';
 import './navbar.css';
 // #fb7a00
 
-class Navheader extends Component {
+class Navheadercl extends Component {
   constructor(props) {
     super(props);
     this.state = {};
@@ -18,17 +21,26 @@ class Navheader extends Component {
 
   handleLogout = () => {
     cookie.remove('cookie', { path: '/' });
-    sessionStorage.clear();
+    const { userLogout1 } = this.props;
+    userLogout1();
+    console.log(' userlogout !');
   };
 
   render() {
     let isloggedin = null;
     if (cookie.load('cookie')) {
       console.log('Able to read cookie');
-      let profilepic = '/Profile_photos/default_avatar.png';
-      const imagename = sessionStorage.getItem('profilepic');
+      let profilepic;
+      const { profilepicstore, username } = this.props;
+      console.log(profilepicstore, username);
+      const imagename = profilepicstore;
       console.log(imagename);
-      if (imagename !== 'null') {
+      if (imagename === 'null' || imagename === '' || imagename === ' ') {
+        profilepic = '/Profile_photos/default_avatar.png';
+        console.log(profilepic);
+      }
+      // (imagename !== 'null' || imagename !== '')
+      else {
         profilepic = `/Profile_photos/${imagename}`;
         console.log(profilepic);
       }
@@ -49,7 +61,7 @@ class Navheader extends Component {
           </li>
           <li>
             <Dropdown id="nav-dropdown" default>
-              {sessionStorage.getItem('username')}
+              {username}
               <Dropdown.Toggle variant="default" />
               <Dropdown.Menu>
                 <Dropdown.Item>
@@ -101,4 +113,21 @@ class Navheader extends Component {
     );
   }
 }
+
+function mapDispatchToProps(dispatch) {
+  return {
+    userLogout1: () => dispatch(userLogout()),
+  };
+}
+
+function mapStateToProps(store) {
+  console.log(store);
+  return {
+    profilepicstore: store.login.user.profilepic,
+    username: store.login.user.username,
+  };
+}
+
+const Navheader = connect(mapStateToProps, mapDispatchToProps)(Navheadercl);
+
 export default Navheader;

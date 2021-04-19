@@ -1,15 +1,17 @@
 import React, { Component } from 'react';
 import '../../App.css';
-import axios from 'axios';
 import bcrypt from 'bcryptjs';
+import Proptypes from 'prop-types';
 import cookie from 'react-cookies';
+import { connect } from 'react-redux';
 import { Redirect } from 'react-router';
+import { userSignup } from '../../actions/signupAction';
 import Navheader from '../navbar/navbar';
 import '../navbar/navbar.css';
 
 const saltRounds = 10;
 
-class Signup extends Component {
+class Signupcl extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -27,7 +29,13 @@ class Signup extends Component {
     this.emailChangeHandler = this.emailChangeHandler.bind(this);
     this.passwordChangeHandler = this.passwordChangeHandler.bind(this);
     this.submitsignup = this.submitsignup.bind(this);
+    this.handleRedirect = this.handleRedirect.bind(this);
   }
+
+  handleRedirect = () => {
+    console.log('handle redirect ');
+    return <Redirect to="/dashboard" />;
+  };
 
   usrchangeHandler = (e) => {
     this.setState({
@@ -108,41 +116,14 @@ class Signup extends Component {
         email,
         encryptpassword: await bcrypt.hash(password, saltRounds),
       };
-      console.log(data);
-      // set the with credentials to true
-      axios.defaults.withCredentials = true;
-      // make a post request with the user data
-      axios
-        .post('http://localhost:3001/signup', data)
-        .then((response) => {
-          console.log('Status Code : ', response.status);
-          if (response.status === 200) {
-            console.log(response.data);
-            console.log(response.data.username);
-            const resuserid = response.data.user_id;
-            const resusername = response.data.username;
-            const resemail = response.data.email;
-            const rescurrency = response.data.currencydef;
-            sessionStorage.setItem('userid', resuserid);
-            sessionStorage.setItem('username', resusername);
-            sessionStorage.setItem('useremail', resemail);
-            sessionStorage.setItem('profilepic', null);
-            sessionStorage.setItem('defaultcurrency', rescurrency);
-            const redirectVar1 = <Redirect to="/dashboard" />;
-            this.setState({ redirecttohome: redirectVar1 });
-          } else {
-            this.setState({
-              redirecttohome: null,
-            });
-          }
-        })
-        .catch((err) => {
-          console.log(err.response);
-          alert(err.response.data);
-          this.setState({
-            errorMessage: err.response.data,
-          });
-        });
+      const { userSignup1 } = this.props;
+      userSignup1({ data }, this.handleRedirect);
+      console.log(' usersignup submit !');
+      const { isloggedin } = this.props;
+      console.log(isloggedin);
+      if (isloggedin === 'true') {
+        this.handleRedirect();
+      }
     }
   };
 
@@ -173,6 +154,7 @@ class Signup extends Component {
                 <div className="form-group">
                   <label htmlFor="username">
                     Hi there! My name is
+                    <br />
                     <input
                       type="text"
                       onChange={this.usrchangeHandler}
@@ -191,9 +173,11 @@ class Signup extends Component {
                     </span>
                   )}
                 </div>
+                <br />
                 <div className="form-group">
                   <label htmlFor="username">
                     Here’s my email address:
+                    <br />
                     <input
                       type="text"
                       onChange={this.emailChangeHandler}
@@ -212,9 +196,11 @@ class Signup extends Component {
                     </span>
                   )}
                 </div>
+                <br />
                 <div className="form-group">
                   <label htmlFor="username">
                     And here’s my password:
+                    <br />
                     <input
                       type="password"
                       onChange={this.passwordChangeHandler}
@@ -233,6 +219,7 @@ class Signup extends Component {
                     </span>
                   )}
                 </div>
+                <br />
                 <button
                   type="submit"
                   onClick={this.submitsignup}
@@ -249,5 +236,30 @@ class Signup extends Component {
     );
   }
 }
+
+function mapDispatchToProps(dispatch) {
+  return {
+    userSignup1: (data) => dispatch(userSignup(data)),
+  };
+}
+
+function mapStateToProps(store) {
+  return {
+    isloggedin: store.login.islogged,
+  };
+}
+
+Signupcl.propTypes = {
+  userSignup1: Proptypes.func,
+  isloggedin: Proptypes.string,
+};
+
+Signupcl.defaultProps = {
+  userSignup1: () => {},
+  isloggedin: 'false',
+};
+
+const Signup = connect(mapStateToProps, mapDispatchToProps)(Signupcl);
+
 // export Signup Component
 export default Signup;

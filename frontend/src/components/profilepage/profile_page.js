@@ -7,8 +7,6 @@ import { Form, Image } from 'react-bootstrap';
 import FormData from 'form-data';
 import Navheader from '../navbar/navbar';
 
-// import DefaultAvatar from '../../../public/Profile_photos/default_avatar.png'; // import DefaultAvatar from '../  Profile_photos/default_avatar.png';
-
 import '../navbar/navbar.css';
 import './profilepage.css';
 
