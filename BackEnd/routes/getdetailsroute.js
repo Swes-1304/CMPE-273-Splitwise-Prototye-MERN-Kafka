@@ -70,11 +70,11 @@ router.get(
 );
 
 router.get(
-  '/getuserpgroups/:id',
+  '/getuserpgroups',
   passport.authenticate('jwt', { session: false }),
   async (req, res) => {
     console.log('Inside  getusergroups');
-    const id = req.params.id;
+    const id = req.user._id;
     console.log(id);
     var groupnames = [];
     await Users.find({ _id: id }, { groups: 1 })
@@ -94,11 +94,11 @@ router.get(
 );
 
 router.get(
-  '/getpgroupinvites/:id',
+  '/getpgroupinvites',
   passport.authenticate('jwt', { session: false }),
   async (req, res) => {
     console.log('Inside getpgroupinvites');
-    const id = req.params.id;
+    const id = req.user._id;
     console.log(id);
     var groupinvitenames = [];
     await Users.find({ _id: id }, { groupsInvitedTo: 1 })

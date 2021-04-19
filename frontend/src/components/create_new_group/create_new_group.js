@@ -16,7 +16,7 @@ import backendServer from '../../webConfig';
 class Createnewgroupcl extends Component {
   constructor(props) {
     super(props);
-    this.groupform = React.createRef();
+    // this.groupform = React.createRef();
     this.state = {
       selectUsername: [],
       groupname: '',

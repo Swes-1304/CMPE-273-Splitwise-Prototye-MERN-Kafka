@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { CREATE_GROUP, ERRORS, RESET } from './types';
+import { CREATE_GROUP, ERRORS, RESET_ERRORS } from './types';
 import backendServer from '../webConfig';
 
 export const createGroup = (creategrpData) => (dispatch) => {
@@ -34,4 +34,4 @@ export const createGroup = (creategrpData) => (dispatch) => {
     });
 };
 
-export const reset = () => (dispatch) => dispatch({ type: RESET });
+export const reset = () => (dispatch) => dispatch({ type: RESET_ERRORS });

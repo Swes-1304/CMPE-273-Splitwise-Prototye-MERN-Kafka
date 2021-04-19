@@ -1,8 +1,17 @@
-import { CREATE_GROUP, RESET, ERRORS } from '../actions/types';
+import {
+  CREATE_GROUP,
+  GET_GROUPS,
+  GET_GROUPINVITES,
+  RESET_ERRORS,
+  ERRORS,
+} from '../actions/types';
 
 const initialState = {
   createSuccess: 0,
+  createdgroups: {},
   groups: {},
+  groupinvites: {},
+  success: 0,
   error: null,
 };
 
@@ -17,7 +26,21 @@ export default function loginReducer(state = initialState, action) {
       return {
         ...state,
         createSuccess: 1,
+        createdgroups: action.payload,
+        error: null,
+      };
+    case GET_GROUPS:
+      return {
+        ...state,
+        success: 1,
         groups: action.payload,
+        error: null,
+      };
+    case GET_GROUPINVITES:
+      return {
+        ...state,
+        success: 1,
+        groupinvites: action.payload,
         error: null,
       };
     case ERRORS:
@@ -25,7 +48,7 @@ export default function loginReducer(state = initialState, action) {
         ...state,
         error: action.payload,
       };
-    case RESET:
+    case RESET_ERRORS:
       return {
         ...state,
         error: null,

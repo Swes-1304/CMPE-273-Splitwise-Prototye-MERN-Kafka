@@ -196,7 +196,7 @@ router.post(
     console.log('Inside  acceptinvitaion');
     console.log(req.body);
 
-    const _id = req.body.userid;
+    const _id = req.user._id;
     //const useremail = req.body.useremail;
     const grpname = req.body.currentgrp;
     var accgrp;
@@ -287,6 +287,7 @@ router.post(
       .catch((err) => {
         console.log(err);
         res.status(500).send({ error: err });
+        return;
       });
     res.status(200).send('accepted');
   }
@@ -299,7 +300,7 @@ router.post(
     console.log('Inside  denyinvitation');
     console.log(req.body);
 
-    const _id = req.body.userid;
+    const _id = req.user._id;
     //const useremail = req.body.useremail;
     const grpname = req.body.currentgrp;
     var dnygrp;
@@ -366,6 +367,7 @@ router.post(
       .catch((err) => {
         console.log(err);
         res.status(500).send({ error: err });
+        return;
       });
     res.status(200).send('denied');
   }

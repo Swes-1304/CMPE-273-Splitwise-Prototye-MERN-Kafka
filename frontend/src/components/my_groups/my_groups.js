@@ -5,21 +5,24 @@ import cookie from 'react-cookies';
 import Button from 'react-bootstrap/Button';
 import { Modal } from 'react-bootstrap';
 import isEmpty from 'lodash/isEmpty';
-// import { Form } from 'react-bootstrap';
+import { connect } from 'react-redux';
+import Proptypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import Select from 'react-select';
 import Navheader from '../navbar/navbar';
 import Sidebarcomp from '../navbar/sidebar';
+import { reset } from '../../actions/creategroupAction';
+import { getGroups, getGroupInvites } from '../../actions/mygroupsAction';
+import backendServer from '../../webConfig';
 import '../navbar/navbar.css';
 import '../dashboard/dashboard.css';
 import './my_groups.css';
 
-class Mygroups extends Component {
+class Mygroupscl extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      userid: '',
-      useremail: '',
+      token: localStorage.getItem('token'),
       groupslist: [],
       invitelist: [],
       popup: false,
@@ -38,16 +41,25 @@ class Mygroups extends Component {
   }
 
   componentWillMount() {
-    const userid1 = sessionStorage.getItem('userid');
-    const useremail1 = sessionStorage.getItem('useremail');
-    const getuserpgroups = this.getuserpgroups(userid1);
-    const getpgroupinvites = this.getpgroupinvites(userid1);
-    this.setState({
-      userid: userid1,
-      useremail: useremail1,
-      groupslist: getuserpgroups,
-      invitelist: getpgroupinvites,
-    });
+    this.getuserpgroups();
+    this.getpgroupinvites();
+    const { reset1 } = this.props;
+    reset1();
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const { groupslist } = this.state;
+    if (nextProps.groups !== groupslist) {
+      this.setState({ groupslist: nextProps.groups });
+      const arrayforselect = nextProps.groups.map((el) => ({
+        value: el,
+        label: el,
+      }));
+      console.log(arrayforselect);
+      this.setState({
+        gpselectoptions: arrayforselect,
+      });
+    }
   }
 
   showHandler = (grpname) => {
@@ -58,72 +70,42 @@ class Mygroups extends Component {
     this.setState({ popup: false, groupinvite: '' });
   };
 
-  getuserpgroups = (userid) => {
-    axios
-      .get(`http://localhost:3001/getuserpgroups/${userid}`, {
-        headers: {
-          'content-type': 'application/json',
-        },
-      })
-      .then((response) => {
-        console.log(response.data);
-        console.log(typeof response.data);
-        const newaar = response.data.map((el) => el.gpname);
-        console.log(newaar);
-        const { data } = response;
-        const arrayforselect = data.map((el) => ({
-          value: el.gpname,
-          label: el.gpname,
-        }));
-        console.log(arrayforselect);
-        this.setState({
-          groupslist: newaar,
-          gpselectoptions: arrayforselect,
-        });
-      })
-      .catch((err) => console.log(err));
+  getuserpgroups = () => {
+    const { getGroups1 } = this.props;
+    getGroups1();
+    console.log(' user groups  !');
   };
 
-  getpgroupinvites = (userid) => {
-    axios
-      .get(`http://localhost:3001/getpgroupinvites/${userid}`, {
-        headers: {
-          'content-type': 'application/json',
-        },
-      })
-      .then((response) => {
-        console.log(response.data);
-        console.log(typeof response.data);
-        const newaar = response.data.map((el) => el.gpname);
-        console.log(newaar);
-        this.setState({
-          invitelist: newaar,
-        });
-      })
-      .catch((err) => console.log(err));
+  getpgroupinvites = () => {
+    const { getGroupInvites1 } = this.props;
+    getGroupInvites1();
+    console.log(' user group invites  !');
   };
 
   acceptinvitation = () => {
     // e.preventDefault();
     // console.log(e.target.value);
     this.setState({ popup: false });
-    const { popup, userid, useremail, groupinvite } = this.state;
+    const { popup, groupinvite, token } = this.state;
     // const currentgrp = groupinvite;
     const data = {
       currentgrp: groupinvite,
-      userid,
-      useremail,
     };
     console.log(data, popup);
     axios
-      .post('http://localhost:3001/acceptinvitation', data)
+      .post(`${backendServer}/acceptinvitation`, data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'content-type': 'application/json',
+        },
+      })
       .then((response) => {
         console.log('Status Code : ', response.status);
         console.log('response ', response.data);
         if (response.status === 200) {
           console.log(response.data);
-          this.getuserpgroups(userid);
-          this.getpgroupinvites(userid);
+          this.getuserpgroups();
+          this.getpgroupinvites();
         } else {
           console.log(response.data);
           alert(response.data);
@@ -140,7 +122,7 @@ class Mygroups extends Component {
     // e.preventDefault();
     // console.log(e.target.value);
     this.setState({ popup: false });
-    const { popup, userid, useremail, groupinvite } = this.state;
+    const { popup, userid, useremail, groupinvite, token } = this.state;
     // const currentgrp = groupname;
     const data = {
       currentgrp: groupinvite,
@@ -149,7 +131,12 @@ class Mygroups extends Component {
     };
     console.log(data, popup);
     axios
-      .post('http://localhost:3001/denyinvitation', data)
+      .post(`${backendServer}/denyinvitation`, data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'content-type': 'application/json',
+        },
+      })
       .then((response) => {
         console.log('Status Code : ', response.status);
         console.log('response ', response.data);
@@ -189,17 +176,16 @@ class Mygroups extends Component {
       redirectVar = <Redirect to="/" />;
     }
     const { redirecttopage } = this.state;
-    const { groupslist, gpselectoptions } = this.state;
-    const { invitelist } = this.state;
+    const { groupslist, gpselectoptions, invitelist } = this.state;
     const { popup, selectedvalue, groupinvite } = this.state;
-
+    const { errors, groups, groupinvites } = this.props;
     console.log(groupslist, invitelist, selectedvalue);
     let checkifinvitesnull = false;
     let checkifgroupsnull = false;
-    if (isEmpty(invitelist)) {
+    if (isEmpty(groupinvites)) {
       checkifinvitesnull = true;
     }
-    if (isEmpty(groupslist)) {
+    if (isEmpty(groups)) {
       checkifgroupsnull = true;
     }
     console.log(checkifinvitesnull, checkifgroupsnull);
@@ -233,7 +219,7 @@ class Mygroups extends Component {
                 ) : (
                   <div>
                     {' '}
-                    {invitelist.map((groupname) => (
+                    {groupinvites.map((groupname) => (
                       <ul className="mygroups-button">
                         <li>
                           <Button
@@ -296,7 +282,7 @@ class Mygroups extends Component {
               ) : (
                 <div>
                   {' '}
-                  {groupslist.map((groupname) => (
+                  {groups.map((groupname) => (
                     <ul className="mygroups-button">
                       <li>
                         <Button
@@ -343,10 +329,59 @@ class Mygroups extends Component {
           >
             GO
           </Button>
+          <p className="errmsg" style={{ color: 'maroon' }}>
+            {' '}
+            {errors}{' '}
+          </p>
         </div>
         {redirecttopage}
       </div>
     );
   }
 }
+
+function mapDispatchToProps(dispatch) {
+  return {
+    getGroups1: () => dispatch(getGroups()),
+    getGroupInvites1: () => dispatch(getGroupInvites()),
+    reset1: () => dispatch(reset()),
+  };
+}
+
+function mapStateToProps(store) {
+  console.log(store);
+  return {
+    username1: store.login.user.username,
+    email1: store.login.user.email,
+    groups: store.groups.groups,
+    groupinvites: store.groups.groupinvites,
+    errors: store.groups.error,
+    isSuccess: store.groups.success,
+  };
+}
+
+const Mygroups = connect(mapStateToProps, mapDispatchToProps)(Mygroupscl);
+
+Mygroupscl.propTypes = {
+  reset1: Proptypes.func,
+  getGroups1: Proptypes.func,
+  getGroupInvites1: Proptypes.func,
+  errors: Proptypes.string,
+  // isSuccess: Proptypes.number,
+  // eslint-disable-next-line react/forbid-prop-types
+  groups: Proptypes.array,
+  // eslint-disable-next-line react/forbid-prop-types
+  groupinvites: Proptypes.array,
+};
+
+Mygroupscl.defaultProps = {
+  getGroups1: () => {},
+  getGroupInvites1: () => {},
+  reset1: () => {},
+  // isSuccess: 0,
+  errors: '',
+  groups: [],
+  groupinvites: [],
+};
+
 export default Mygroups;

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { USER_LOGIN, USER_LOGOUT, ERRORS, RESET } from './types';
+import { USER_LOGIN, USER_LOGOUT, ERRORS, RESET_ERRORS } from './types';
 import backendServer from '../webConfig';
 
 export const userLogin = (loginData) => (dispatch) => {
@@ -38,4 +38,4 @@ export const userLogin = (loginData) => (dispatch) => {
 
 export const userLogout = () => (dispatch) => dispatch({ type: USER_LOGOUT });
 
-export const reset = () => (dispatch) => dispatch({ type: RESET });
+export const reset = () => (dispatch) => dispatch({ type: RESET_ERRORS });

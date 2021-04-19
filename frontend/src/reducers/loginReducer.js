@@ -3,7 +3,7 @@ import {
   USER_LOGOUT,
   USER_SIGNUP,
   ERRORS,
-  RESET,
+  RESET_ERRORS,
   UPDATE_PROFILE,
 } from '../actions/types';
 
@@ -51,7 +51,7 @@ export default function loginReducer(state = initialState, action) {
         user: action.payload,
         error: null,
       };
-    case RESET:
+    case RESET_ERRORS:
       return {
         ...state,
         error: null,
