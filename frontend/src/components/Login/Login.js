@@ -4,7 +4,7 @@ import '../../App.css';
 import cookie from 'react-cookies';
 import { Redirect } from 'react-router';
 import { connect } from 'react-redux';
-import { userLogin } from '../../actions/loginAction';
+import { userLogin, reset } from '../../actions/loginAction';
 import Navheader from '../navbar/navbar';
 import '../navbar/navbar.css';
 
@@ -31,6 +31,9 @@ class Logincl extends Component {
       // verifyauth: false,
       redirecttohome: null,
     });
+    const { reset1 } = this.props;
+    reset1();
+
     // sessionStorage.clear();
   }
 
@@ -179,6 +182,7 @@ class Logincl extends Component {
 function mapDispatchToProps(dispatch) {
   return {
     userLogin1: (data) => dispatch(userLogin(data)),
+    reset1: () => dispatch(reset()),
   };
 }
 
@@ -195,11 +199,13 @@ Logincl.propTypes = {
   userLogin1: Proptypes.func,
   isloggedin: Proptypes.string,
   errors: Proptypes.string,
+  reset1: Proptypes.func,
 };
 
 Logincl.defaultProps = {
   userLogin1: () => {},
   isloggedin: 'false',
   errors: '',
+  reset1: () => {},
 };
 export default Login;

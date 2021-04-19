@@ -5,11 +5,11 @@ const { config } = require('../store/config');
 const Users = require('../Models/usersModel');
 const Groups = require('../Models/groupsModel');
 const Balances = require('../Models/balanceModel');
-var multer = require('multer');
+// var multer = require('multer');
 
 const router = express.Router();
-const upload = require('../store/imageUpload');
-const updatepic = upload.single('group_avatar');
+// const upload = require('../store/imageUpload');
+// const updatepic = upload.single('group_avatar');
 
 const createnewgroup = async (groupname, groupphoto, members, membersinviteaccepted) => {
   console.log('newgroup');

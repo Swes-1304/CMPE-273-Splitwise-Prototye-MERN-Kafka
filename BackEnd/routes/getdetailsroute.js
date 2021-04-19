@@ -17,12 +17,14 @@ const router = express.Router();
 //applyPassportStrategy(passport);
 
 router.get(
-  '/getuserdetails/:id',
+  '/getuserdetails/',
   passport.authenticate('jwt', { session: false }),
   async (req, res) => {
     console.log('Inside getuserprofile');
     //console.log(req.body);
-    const _id = req.params.id;
+    console.log(req.user.email);
+    console.log(req.user._id);
+    const _id = req.user._id;
     console.log(_id);
     const user = await Users.findOne({ _id });
     if (!user) {

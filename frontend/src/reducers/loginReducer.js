@@ -1,4 +1,11 @@
-import { USER_LOGIN, USER_LOGOUT, USER_SIGNUP, ERRORS } from '../actions/types';
+import {
+  USER_LOGIN,
+  USER_LOGOUT,
+  USER_SIGNUP,
+  ERRORS,
+  RESET,
+  UPDATE_PROFILE,
+} from '../actions/types';
 
 const initialState = {
   islogged: 'false',
@@ -36,6 +43,17 @@ export default function loginReducer(state = initialState, action) {
       return {
         islogged: 'false',
         user: {},
+        error: null,
+      };
+    case UPDATE_PROFILE:
+      return {
+        ...state,
+        user: action.payload,
+        error: null,
+      };
+    case RESET:
+      return {
+        ...state,
         error: null,
       };
     default:

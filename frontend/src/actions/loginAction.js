@@ -1,9 +1,8 @@
 import axios from 'axios';
-import { USER_LOGIN, USER_LOGOUT, ERRORS } from './types';
+import { USER_LOGIN, USER_LOGOUT, ERRORS, RESET } from './types';
 import backendServer from '../webConfig';
 
 export const userLogin = (loginData) => (dispatch) => {
-  console.log('insied userlogin action');
   axios.defaults.withCredentials = true;
   axios
     .post(`${backendServer}/login`, loginData)
@@ -38,3 +37,5 @@ export const userLogin = (loginData) => (dispatch) => {
   }); */
 
 export const userLogout = () => (dispatch) => dispatch({ type: USER_LOGOUT });
+
+export const reset = () => (dispatch) => dispatch({ type: RESET });

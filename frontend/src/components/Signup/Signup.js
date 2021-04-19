@@ -1,15 +1,16 @@
 import React, { Component } from 'react';
 import '../../App.css';
-import bcrypt from 'bcryptjs';
+// import bcrypt from 'bcryptjs';
 import Proptypes from 'prop-types';
 import cookie from 'react-cookies';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router';
 import { userSignup } from '../../actions/signupAction';
+import { reset } from '../../actions/loginAction';
 import Navheader from '../navbar/navbar';
 import '../navbar/navbar.css';
 
-const saltRounds = 10;
+// const saltRounds = 10;
 
 class Signupcl extends Component {
   constructor(props) {
@@ -30,6 +31,15 @@ class Signupcl extends Component {
     this.passwordChangeHandler = this.passwordChangeHandler.bind(this);
     this.submitsignup = this.submitsignup.bind(this);
     this.handleRedirect = this.handleRedirect.bind(this);
+  }
+
+  componentWillMount() {
+    this.setState({
+      // verifyauth: false,
+      redirecttohome: null,
+    });
+    const { reset1 } = this.props;
+    reset1();
   }
 
   handleRedirect = () => {
@@ -114,7 +124,7 @@ class Signupcl extends Component {
       const data = {
         username,
         email,
-        encryptpassword: await bcrypt.hash(password, saltRounds),
+        password,
       };
       const { userSignup1 } = this.props;
       userSignup1({ data }, this.handleRedirect);
@@ -134,6 +144,7 @@ class Signupcl extends Component {
     }
     const { usernameerrors, emailerrors, passworderrors } = this.state;
     const { redirecttohome } = this.state;
+    const { errors } = this.props;
     return (
       <form>
         <div>
@@ -228,6 +239,10 @@ class Signupcl extends Component {
                 >
                   Sign Up
                 </button>
+                <p className="errmsg" style={{ color: 'maroon' }}>
+                  {' '}
+                  {errors}{' '}
+                </p>
               </div>
             </div>
           </div>
@@ -240,23 +255,29 @@ class Signupcl extends Component {
 function mapDispatchToProps(dispatch) {
   return {
     userSignup1: (data) => dispatch(userSignup(data)),
+    reset1: () => dispatch(reset()),
   };
 }
 
 function mapStateToProps(store) {
   return {
     isloggedin: store.login.islogged,
+    errors: store.login.error,
   };
 }
 
 Signupcl.propTypes = {
   userSignup1: Proptypes.func,
   isloggedin: Proptypes.string,
+  errors: Proptypes.string,
+  reset1: Proptypes.func,
 };
 
 Signupcl.defaultProps = {
   userSignup1: () => {},
   isloggedin: 'false',
+  errors: '',
+  reset1: () => {},
 };
 
 const Signup = connect(mapStateToProps, mapDispatchToProps)(Signupcl);

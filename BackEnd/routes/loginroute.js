@@ -18,11 +18,12 @@ const saltRounds = 10;
 const router = express.Router();
 const createnewUser = async (username, email, password) => {
   console.log('newuser');
-  //encryptedpassword =
+  const encryptedpassword = await bcrypt.hash(password, saltRounds);
+  console.log(encryptedpassword);
   const data = {
     username,
     email,
-    password: await bcrypt.hash(password, saltRounds),
+    password: encryptedpassword,
   };
   console.log(data);
   return new Users(data).save();
@@ -39,15 +40,15 @@ router.post('/signup', signupValidation, async (req, res) => {
     });
   }
   try {
-    const { username, email, encryptpassword } = req.body.data;
+    const { username, email, password } = req.body.data;
     console.log('req body');
     console.log(req.body);
     const user = await Users.findOne({ email });
     console.log('user');
     console.log(user);
     if (!user) {
-      console.log(username, email, encryptpassword);
-      await createnewUser(username, email, encryptpassword);
+      console.log(username, email, password);
+      await createnewUser(username, email, password);
       const newUser = await Users.findOne({ email });
       const token = jwt.sign({ email }, config.passport.secret, { expiresIn: '1d' });
       const { _id, userprofilephoto, usercurrency } = newUser;
@@ -71,6 +72,7 @@ router.post('/signup', signupValidation, async (req, res) => {
 });
 
 router.post('/login', loginValidation, async (req, res) => {
+  console.log(' inside login ');
   console.log(req.body);
   const errorsfromvalidation = validationResult(req.body.data);
   if (!errorsfromvalidation.isEmpty()) {

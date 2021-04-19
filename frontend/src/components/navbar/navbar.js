@@ -41,7 +41,7 @@ class Navheadercl extends Component {
       }
       // (imagename !== 'null' || imagename !== '')
       else {
-        profilepic = `/Profile_photos/${imagename}`;
+        profilepic = imagename;
         console.log(profilepic);
       }
       isloggedin = (

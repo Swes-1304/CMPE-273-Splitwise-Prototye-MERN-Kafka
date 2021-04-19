@@ -43,6 +43,7 @@ app.use(
 //   }));
 // app.use(bodyParser.json());
 // Apply strategy to passport
+
 applyPassportStrategy(passport);
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());

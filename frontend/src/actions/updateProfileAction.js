@@ -1,18 +1,22 @@
 import axios from 'axios';
-import { USER_SIGNUP, ERRORS } from './types';
+import { UPDATE_PROFILE, ERRORS } from './types';
 import backendServer from '../webConfig';
 
-export const userSignup = (signupData) => (dispatch) => {
-  axios.defaults.withCredentials = true;
+export const updateProfile = (updateData) => (dispatch) => {
+  const token = localStorage.getItem('token');
   axios
-    .post(`${backendServer}/signup`, signupData)
+    .post(`${backendServer}/updateprofile`, updateData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'content-type': 'application/json',
+      },
+    })
     .then((response) => {
       if (response.status === 200) {
-        dispatch({
-          type: USER_SIGNUP,
+        return dispatch({
+          type: UPDATE_PROFILE,
           payload: response.data,
         });
-        return localStorage.setItem('token', response.data.token);
       }
       return dispatch({
         type: ERRORS,
@@ -30,4 +34,4 @@ export const userSignup = (signupData) => (dispatch) => {
     });
 };
 
-export default userSignup;
+export default updateProfile;
