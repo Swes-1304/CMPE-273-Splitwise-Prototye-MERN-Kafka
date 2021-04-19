@@ -4,4 +4,5 @@ export const USER_SIGNUP = 'USER_SIGNUP';
 export const ERRORS = 'ERRORS';
 export const RESET = 'RESET';
 export const UPDATE_PROFILE = 'UPDATE_PROFILE';
+export const CREATE_GROUP = 'CREATE_GROUP';
 // export const EMAIL_CHANGE = 'EMAIL_CHANGE';

@@ -53,16 +53,16 @@ router.get(
 );
 
 router.get(
-  '/getuseroptions/:id',
+  '/getuseroptions/',
   passport.authenticate('jwt', { session: false }),
   async (req, res) => {
     console.log(' inside getuseroptions');
     console.log(req.user.email);
     console.log(req.user._id);
-    const id = req.params.id;
-    console.log(id);
+    const _id = req.user._id;
+    console.log(_id);
     //const user = await Users.findOne({ _id });
-    await Users.find({ _id: { $ne: id } }, { username: 1, email: 1 }, (err, result) => {
+    await Users.find({ _id: { $ne: _id } }, { username: 1, email: 1, _id: 0 }, (err, result) => {
       //res.status(200).json({ data: result });
       res.status(200).send(result);
     });

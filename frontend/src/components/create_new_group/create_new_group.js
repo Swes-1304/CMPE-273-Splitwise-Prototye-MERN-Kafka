@@ -4,11 +4,16 @@ import '../../App.css';
 import axios from 'axios';
 import { Form, Image } from 'react-bootstrap';
 import cookie from 'react-cookies';
+import { connect } from 'react-redux';
+import Proptypes from 'prop-types';
 import { Redirect } from 'react-router';
+import { uploadFile } from 'react-s3';
 import Navheader from '../navbar/navbar';
+import { createGroup, reset } from '../../actions/creategroupAction';
 import '../navbar/navbar.css';
+import backendServer from '../../webConfig';
 
-class Createnewgroup extends Component {
+class Createnewgroupcl extends Component {
   constructor(props) {
     super(props);
     this.groupform = React.createRef();
@@ -19,6 +24,9 @@ class Createnewgroup extends Component {
       userid: '',
       grouphoto: null,
       updatedpic: false,
+      token: localStorage.getItem('token'),
+      redirecttogroup: null,
+      setSelectedfile: null,
     };
     // Bind the handlers to this class
     this.groupnameChangeHandler = this.groupnameChangeHandler.bind(this);
@@ -30,21 +38,18 @@ class Createnewgroup extends Component {
   }
 
   componentWillMount() {
-    const userid1 = sessionStorage.getItem('userid');
-    this.setState({
-      userid: userid1,
-      email: sessionStorage.getItem('useremail'),
-      username: sessionStorage.getItem('username'),
-      redirecttogroup: null,
-    });
-    this.getuseroptions(userid1);
+    const { reset1 } = this.props;
+    reset1();
+    this.getuseroptions();
   }
 
   // get the list of all users part of application to be used for the dropdown selection except the current users
-  getuseroptions = (userid) => {
+  getuseroptions = () => {
+    const { token } = this.state;
     axios
-      .get(`http://localhost:3001/getuseroptions/${userid}`, {
+      .get(`${backendServer}/getuseroptions/`, {
         headers: {
+          Authorization: `Bearer ${token}`,
           'content-type': 'application/json',
         },
       })
@@ -52,7 +57,7 @@ class Createnewgroup extends Component {
         const { data } = response;
         const usernametext = data.map((txt) => ({
           value: txt.email,
-          label: `${txt.usersname}(${txt.email})`,
+          label: `${txt.username}(${txt.email})`,
         }));
         console.log(usernametext);
         console.log(response.data);
@@ -77,12 +82,36 @@ class Createnewgroup extends Component {
   };
 
   groupphtochangeHandler = (e) => {
-    this.setState({
-      grouphoto: e.target.files[0],
-      updatedpic: true,
-    });
+    const S3_BUCKET = 'splitwise-profilepictures';
+    const REGION = 'us-east-1';
+    const ACCESS_KEY = 'AKIAJSP2ZFMVUPCPOXLA';
+    const SECRET_ACCESS_KEY = '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';
+
+    const config = {
+      bucketName: S3_BUCKET,
+      region: REGION,
+      accessKeyId: ACCESS_KEY,
+      secretAccessKey: SECRET_ACCESS_KEY,
+    };
+
     console.log(e.target.files[0]);
     console.log(e.target.files[0].name);
+    this.setState({
+      // profilephoto: e.target.files[0],
+      setSelectedfile: e.target.files[0],
+      updatedpic: true,
+    });
+    const { setSelectedfile } = this.state;
+    console.log(setSelectedfile);
+    uploadFile(e.target.files[0], config)
+      .then((data) => {
+        const loc = data.location;
+        console.log(loc);
+        this.setState({
+          grouphoto: loc,
+        });
+      })
+      .catch((err) => console.error(err));
   };
 
   addgroupmember = () => {
@@ -106,8 +135,6 @@ class Createnewgroup extends Component {
     e.preventDefault();
     const {
       groupname,
-      username,
-      email,
       userid,
       grouphoto,
       updatedpic,
@@ -142,51 +169,31 @@ class Createnewgroup extends Component {
       });
       return;
     }
+    const data = {
+      groupname,
+      userid,
+      grouphoto,
+      updatedpic,
+      groupmembers,
+      gplist,
+    };
 
-    const formdata = new FormData(this.groupform.current);
-    if (updatedpic) {
-      formdata.append('group_avatar', grouphoto, grouphoto.name);
-    } else {
-      const imagename = '';
-      formdata.append('group_avatar', imagename);
-    }
-    formdata.append('idusers', userid);
-    formdata.append('groupcreatedby', username);
-    formdata.append('groupcreatedbyemail', email);
-    formdata.append('gpmememails[]', gplist);
-    axios({
-      method: 'post',
-      url: 'http://localhost:3001/createnewgroup',
-      data: formdata,
-      headers: {
-        // eslint-disable-next-line no-underscore-dangle
-        'content-type': `multipart/form-data; boundary=${formdata._boundary}`,
-      },
-    })
-      .then((response) => {
-        console.log('Status Code : ', response.status);
-        console.log('response ', response.data);
-        if (response.status === 200) {
-          sessionStorage.setItem('groupname', response.data);
-          const redirectVar1 = <Redirect to="/group" />;
-          this.setState({
-            redirecttogroup: redirectVar1,
-          });
-        } else {
-          console.log(response.data);
-          alert(response.data);
-          this.setState({
-            redirecttogroup: null,
-          });
-        }
-      })
-      .catch((err) => {
-        console.log(err.response.data);
-        alert(err.response.data);
-        this.setState({
-          errorMessage: err.response.data,
-        });
+    const { createGroup1 } = this.props;
+    createGroup1({ data });
+    console.log(' create group  !');
+
+    const { iscreateSuccess } = this.props;
+    console.log(iscreateSuccess);
+    if (iscreateSuccess === 1) {
+      const redirectVar1 = <Redirect to="/group" />;
+      this.setState({
+        redirecttogroup: redirectVar1,
       });
+    }
+
+    this.setState({
+      updatedpic: false,
+    });
   };
 
   render() {
@@ -194,12 +201,11 @@ class Createnewgroup extends Component {
     if (!cookie.load('cookie')) {
       redirectVar = <Redirect to="/" />;
     }
-    const { email, username } = this.state;
     const { groupmembers } = this.state;
     const { errorMessage, errorMessage1 } = this.state;
     const { redirecttogroup } = this.state;
     const { selectUsername } = this.state;
-    console.log(username, email);
+    const { errors, username1, email1 } = this.props;
     const grouppic = '/Group_photos/default_avatar.png';
     return (
       <div>
@@ -266,7 +272,7 @@ class Createnewgroup extends Component {
                       <h2>Group members</h2>
                       <div className="group-member">
                         <div className="grpnameemail">
-                          {username}(<em>{email}</em>)
+                          {username1}(<em>{email1}</em>)
                         </div>
                         {groupmembers.map((groupmember, id) => (
                           <div
@@ -340,6 +346,10 @@ class Createnewgroup extends Component {
                           {errorMessage}{' '}
                         </p>
                         <div />
+                        <p className="errmsg" style={{ color: 'maroon' }}>
+                          {' '}
+                          {errors}{' '}
+                        </p>
                       </div>
                       <div className="savebtn">
                         <button
@@ -364,4 +374,48 @@ class Createnewgroup extends Component {
     );
   }
 }
+
+function mapDispatchToProps(dispatch) {
+  return {
+    createGroup1: (data) => dispatch(createGroup(data)),
+    reset1: () => dispatch(reset()),
+  };
+}
+
+function mapStateToProps(store) {
+  console.log(store);
+  return {
+    profilepicstore: store.login.user.profilepic,
+    username1: store.login.user.username,
+    email1: store.login.user.email,
+    errors: store.groups.error,
+    iscreateSuccess: store.groups.createSuccess,
+  };
+}
+
+const Createnewgroup = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Createnewgroupcl);
+
+Createnewgroupcl.propTypes = {
+  // profilepicstore: Proptypes.string,
+  reset1: Proptypes.func,
+  createGroup1: Proptypes.func,
+  email1: Proptypes.string,
+  errors: Proptypes.string,
+  username1: Proptypes.string,
+  iscreateSuccess: Proptypes.number,
+};
+
+Createnewgroupcl.defaultProps = {
+  // profilepicstore: '',
+  reset1: () => {},
+  createGroup1: () => {},
+  username1: '',
+  email1: '',
+  iscreateSuccess: 0,
+  errors: '',
+};
+
 export default Createnewgroup;

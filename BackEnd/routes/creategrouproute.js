@@ -41,17 +41,15 @@ router.post(
   async (req, res) => {
     console.log('Inside  createnewgroup');
     console.log(req.body);
-    console.log(req.headers);
-    const _id = req.body.idusers;
-    const grpname = req.body.group_name;
-    const groupcreatedbyemail = req.body.groupcreatedbyemail;
-    const grpmemadded = { type: 'gpemails', gpemails: req.body.gpmememails };
+    const _id = req.user._id;
+    const grpname = req.body.data.groupname;
+    const groupcreatedbyemail = req.user.email;
+    const grpmemadded = req.body.data.gplist;
+    const grpphoto = req.body.data.grouphoto;
     console.log(grpmemadded);
-    var stringgpmemadded = JSON.stringify(req.body.gpmememails);
-    var replacebraces = stringgpmemadded.replace(/[\[\]\'\"]/g, '');
-    var gpmems = replacebraces.split(',');
     console.log('details');
-    console.log(groupcreatedbyemail, _id, grpmemadded, grpname, gpmems);
+    console.log(groupcreatedbyemail, _id, grpmemadded, grpname);
+    const gpmems = grpmemadded;
     var gpmemesid = [];
     for (let i = 0; i < gpmems.length; i++) {
       console.log(gpmems[i]);
@@ -75,28 +73,10 @@ router.post(
     } else {
       console.log('inside else');
       console.log(groupcreatedbyemail, _id, grpmemadded, grpname, gpmemesid);
-      if (!req.file) {
-        console.log('without pic');
-        groupphoto = req.body.group_avatar;
-        await createnewgroup(grpname, groupphoto, gpmemesid, _id);
-      } else {
-        updatepic(req, res, async function (err) {
-          if (err) {
-            return res.json({
-              success: false,
-              errors: {
-                title: 'Image Upload Error',
-                detail: err.message,
-                error: err,
-              },
-            });
-          }
-          groupphoto = req.file.location;
-          console.log(groupphoto);
 
-          await createnewgroup(grpname, groupphoto, gpmemesid, _id);
-        });
-      }
+      groupphoto = grpphoto;
+      console.log(groupphoto);
+      await createnewgroup(grpname, groupphoto, gpmemesid, _id);
 
       var newgrp;
       await Groups.findOne({ groupname: grpname }, { _id: 1 }, (err, result) => {
@@ -111,12 +91,12 @@ router.post(
           });
         }
         newgrp = result;
+
         console.log(newgrp);
       });
 
       const groupmems = gpmemesid;
       const newgrpid = newgrp._id;
-      console.log(newgrpid);
       // update the owner details in users model
 
       for (let i = 0; i < groupmems.length; i++) {
@@ -204,7 +184,7 @@ router.post(
           console.log(err);
           res.status(500).send({ error: err });
         });
-      res.status(200).send('Group Creation successful!');
+      res.status(200).send({ groupname: grpname });
     }
   }
 );
