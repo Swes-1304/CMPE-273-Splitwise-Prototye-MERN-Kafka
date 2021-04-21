@@ -18,15 +18,7 @@ const initialState = {
 };
 
 function totalsummary(balances, root1) {
-  // const state = getState();
-  // // console.log('state', state);
-  // console.log(' inside total summary reducer ');
-  // console.log(root1.login.user.username);
-  // // console.log(store.getState().login.defaultcurrency);
   const defaultcurrency1 = root1.login.user.currencydef;
-  // console.log('defcu');
-  // console.log(' defcurrency', defaultcurrency1);
-  // console.log(' inside total summary reducer ');
   const regExp = /\(([^)]+)\)/;
   const getvalue = regExp.exec(defaultcurrency1);
   const symbolvalue = getvalue[1];

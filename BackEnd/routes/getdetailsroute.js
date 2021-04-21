@@ -138,7 +138,8 @@ router.get(
         { groupid: grpid },
         { payedBy: 1, tamount: 1, tdate: 1, tdescription: 1, tnotes: 1 }
       )
-        .populate({ path: 'payedBy' })
+        .populate('payedBy')
+        .populate({ path: 'tnotes', ref: 'Comments', populate: { path: 'commentBy' } })
         .sort({ tdate: 'desc' })
         .exec((err, result) => {
           if (err) {
@@ -147,74 +148,6 @@ router.get(
           console.log('transactions result');
           console.log(result);
           res.status(200).send(result);
-        });
-    });
-  }
-);
-
-router.get(
-  '/getcomments/:gpname',
-  passport.authenticate('jwt', { session: false }),
-  async (req, res) => {
-    console.log('Inside getgrpexpenses');
-    const gpname = req.params.gpname;
-    console.log(gpname);
-    var grpid;
-    await Groups.findOne({ groupname: gpname }, { _id: 1 }, async (err, result) => {
-      //res.status(200).json({ data: result });
-      if (err) {
-        res.status(400).send(err);
-      }
-      grpid = result._id;
-      console.log('groups find ');
-      console.log(grpid, result);
-      await Transactions.find(
-        { groupid: grpid },
-        { payedBy: 1, tamount: 1, tdate: 1, tdescription: 1, tnotes: 1 }
-      )
-        .sort({ tdate: 'desc' })
-        .exec((err, result) => {
-          if (err) {
-            res.status(400).send(err);
-          }
-          console.log('transactions result');
-          console.log(result);
-          var commentsarray = [{}];
-          var i;
-          console.log(result.length);
-          for (i = 0; i < result.length; i++) {
-            console.log(i);
-            Comments.find(
-              { trancid: result[i]._id },
-              { commentBy: 1, trancid: 1, commentdate: 1, comment: 1 }
-            )
-              .populate({ path: 'commentBy' })
-              .exec((err, result) => {
-                if (err) {
-                  res.status(400).send(err);
-                }
-                console.log('comments result');
-                console.log(result);
-                commentsarray.push(result);
-              });
-          }
-
-          /* res.write(JSON.stringify(result));
-          setTimeout(function () {
-            res.write(JSON.stringify(commentsarray));
-          }, 200);
-          res.end(); */
-          /* if (i === result.length) {
-            console.log('comments array');
-            console.log(commentsarray);
-            res.status(200).send({ transcations: result, comments: commentsarray });
-          }
-          */
-          setTimeout(function () {
-            console.log('comments array');
-            console.log(commentsarray);
-            res.status(200).send(commentsarray);
-          }, 200);
         });
     });
   }
@@ -366,16 +299,11 @@ router.get(
       }
       //console.log(result);
       console.log(result[0].groups);
+      var transcationsarray = [];
       for (let i = 0; i < result[0].groups.length; i++) {
         groupspartof.push(result[0].groups[i]._id);
-      }
-      console.log('users groups find ');
-      console.log(groupspartof);
-      var transcationsarray = [];
-
-      for (let j = 0; j < groupspartof.length; j++) {
-        await Transactions.find(
-          { groupid: groupspartof[j] },
+        Transactions.find(
+          { groupid: result[0].groups[i]._id },
           { payedBy: 1, groupid: 1, tamount: 1, tdate: 1, tdescription: 1 }
         )
           .populate([{ path: 'payedBy' }, { path: 'groupid' }])
@@ -390,8 +318,8 @@ router.get(
             console.log(transcationsarray);
           });
       }
-
-      await Transactions.find(
+      var setteluparray = [];
+      Transactions.find(
         { payedBy: _id, groupid: '000000000000000000000000' },
         { payedBy: 1, groupid: 1, tamount: 1, tdate: 1, tdescription: 1, tnotes: 1 }
       )
@@ -401,34 +329,111 @@ router.get(
             res.status(400).send(err);
           }
           console.log('settleup result');
-          transcationsarray.push(result);
-          res.status(200).send(transcationsarray);
+          setteluparray = result;
+          // res.status(200).send(transcationsarray);
         });
       // console.log('completetrancarray', completetrancarray);
+      setTimeout(function () {
+        console.log('transcationsarray array');
+        console.log(transcationsarray);
+        res.status(200).send({ transactions: transcationsarray, settleup: setteluparray });
+      }, 500);
     });
 
     // res.status(200).send(transcationsarray);
   }
 );
 
+/*
 router.get(
-  '/getcomments/:transaction',
+  '/getcomments/:gpname',
+  passport.authenticate('jwt', { session: false }),
+  async (req, res) => {
+    console.log('Inside getgrpexpenses');
+    const gpname = req.params.gpname;
+    console.log(gpname);
+    var grpid;
+    await Groups.findOne({ groupname: gpname }, { _id: 1 }, async (err, result) => {
+      //res.status(200).json({ data: result });
+      if (err) {
+        res.status(400).send(err);
+      }
+      grpid = result._id;
+      console.log('groups find ');
+      console.log(grpid, result);
+      await Transactions.find(
+        { groupid: grpid },
+        { payedBy: 1, tamount: 1, tdate: 1, tdescription: 1, tnotes: 1 }
+      )
+        .sort({ tdate: 'desc' })
+        .exec((err, result) => {
+          if (err) {
+            res.status(400).send(err);
+          }
+          console.log('transactions result');
+          console.log(result);
+          var commentsarray = [];
+          var i;
+          console.log(result.length);
+          for (i = 0; i < result.length; i++) {
+            console.log(i);
+            Comments.find(
+              { trancid: result[i]._id },
+              { commentBy: 1, trancid: 1, commentdate: 1, comment: 1 }
+            )
+              .populate({ path: 'commentBy' })
+              .exec((err, result) => {
+                if (err) {
+                  res.status(400).send(err);
+                }
+                console.log('comments result');
+                console.log(result);
+                commentsarray.push(result);
+              });
+          }
+
+          /* res.write(JSON.stringify(result));
+          setTimeout(function () {
+            res.write(JSON.stringify(commentsarray));
+          }, 200);
+          res.end(); */
+/* if (i === result.length) {
+            console.log('comments array');
+            console.log(commentsarray);
+            res.status(200).send({ transcations: result, comments: commentsarray });
+          }
+          
+         setTimeout(function () {
+          console.log('comments array');
+          console.log(commentsarray);
+          res.status(200).send(commentsarray);
+        }, 200);
+      });
+  });
+}
+);
+
+router.get(
+  '/getcomments/:trasnca_id',
   passport.authenticate('jwt', { session: false }),
   async (req, res) => {
     console.log('Inside getcomments');
     const transaction = req.params.trasnca_id;
     console.log(transaction);
-    var grpid;
-    await Comments.find({ trancid: transaction }, async (err, result) => {
-      //res.status(200).json({ data: result });
-      if (err) {
-        res.status(400).send(err);
-      }
-
-      console.log('result', result);
-      res.status(200).send(result);
-    });
+    Comments.find(
+      { trancid: transaction },
+      { commentBy: 1, trancid: 1, commentdate: 1, comment: 1 }
+    )
+      .populate({ path: 'commentBy' })
+      .exec((err, result) => {
+        if (err) {
+          res.status(400).send(err);
+        }
+        console.log('comments result');
+        console.log(result);
+      });
   }
 );
+*/
 
 module.exports = router;

@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import React, { Component } from 'react';
 
 import axios from 'axios';
@@ -9,13 +10,18 @@ import { Modal, Form, Image } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import Proptypes from 'prop-types';
 import { isEmpty } from 'lodash';
-import numeral from 'numeral';
+import { IsEmpty } from 'react-lodash';
+// import numeral from 'numeral';
 // import Expand from 'react-expand-animated';
 import backendServer from '../../webConfig';
 import Sidebarcomp from '../navbar/sidebar';
 import Navheader from '../navbar/navbar';
 import Groupcomments from './groupcomment';
 import { reset } from '../../actions/creategroupAction';
+import {
+  getgrpExpenses,
+  getgrpsummaryExpenses,
+} from '../../actions/groupAction';
 import '../navbar/navbar.css';
 import '../dashboard/dashboard.css';
 import './group.css';
@@ -28,20 +34,18 @@ class Groupdetailscl extends Component {
       grpname: '',
       popup: false,
       popup1: false,
+      popup2: false,
       description: '',
       amount: 0.0,
-      activties: [{}],
-      individuals: [{}],
-      summaries: [{}],
-      comments: [{}],
       toogleopen: false,
       comment: '',
+      commentid: null,
+      expenseid: null,
       // objofpayees: { payee: '', totalblnc: 0 },
       // arrayofsummaries: [],
       redirecttomygroup: null,
     };
-    this.showHandler = this.showHandler.bind(this);
-    this.closeHandler = this.closeHandler.bind(this);
+
     this.decschangehandler = this.decschangehandler.bind(this);
     this.amtchangehandler = this.amtchangehandler.bind(this);
     this.addhandler = this.addhandler.bind(this);
@@ -59,14 +63,12 @@ class Groupdetailscl extends Component {
     console.log(this.props);
     // eslint-disable-next-line react/prop-types
     const grpname1 = location.state.gName;
-    const activities1 = this.getgrpexpenses(grpname1);
-    const individuals1 = this.getsummaryexpenses(grpname1);
-    const comments1 = this.getcomments(grpname1);
+    this.getgrpexpenses(grpname1);
+    this.getsummaryexpenses(grpname1);
+
     this.setState({
       grpname: grpname1,
-      activties: activities1,
-      individuals: individuals1,
-      comments: comments1,
+      // comments: comments1,
     });
     const { reset1 } = this.props;
     reset1();
@@ -74,136 +76,14 @@ class Groupdetailscl extends Component {
 
   // function to get grp expenses
   getgrpexpenses = (gpname) => {
-    const { token } = this.state;
-    axios
-      .get(`${backendServer}/getgrpexpenses/${gpname}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'content-type': 'application/json',
-        },
-      })
-      .then((response) => {
-        console.log(response.data);
-        console.log(typeof response.data);
-        const { data } = response;
-        const { defaultcurrency } = this.props;
-        const regExp = /\(([^)]+)\)/;
-        const getvalue = regExp.exec(defaultcurrency);
-        const symbolvalue = getvalue[1];
-        const arrayofactivities = data.map((el) => ({
-          // eslint-disable-next-line no-underscore-dangle
-          value: el._id,
-          expdate: el.tdate,
-          descp: el.tdescription,
-          paid: el.payedBy.username,
-          amnt:
-            symbolvalue + numeral(el.tamount.$numberDecimal).format('0,0.00'),
-          formatedmonth: new Date(el.tdate).toLocaleString('default', {
-            month: 'short',
-          }),
-          formatedday: new Date(el.tdate).getUTCDate(),
-        }));
-        console.log(arrayofactivities);
-        this.setState({
-          activties: arrayofactivities,
-        });
-      })
-      .catch((err) => console.log(err));
-  };
-
-  getcomments = (gpname) => {
-    const { token, comments } = this.state;
-    axios
-      .get(`${backendServer}/getcomments/${gpname}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'content-type': 'application/json',
-        },
-      })
-      .then((response) => {
-        console.log(response.data);
-        console.log(comments);
-      })
-      .catch((err) => console.log(err));
+    const { getgrpExpenses1 } = this.props;
+    getgrpExpenses1(gpname);
   };
 
   // function to get summary expenses
   getsummaryexpenses = (gpname) => {
-    const { token } = this.state;
-    axios
-      .get(`${backendServer}/getsummaryexpenses/${gpname}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'content-type': 'application/json',
-        },
-      })
-      .then((response) => {
-        console.log(response.data);
-        console.log(typeof response.data);
-        const { data } = response;
-        // const { summaries } = this.state;
-        const { defaultcurrency } = this.props;
-        console.log(defaultcurrency);
-        const regExp = /\(([^)]+)\)/;
-        const getvalue = regExp.exec(defaultcurrency);
-        const symbolvalue = getvalue[1];
-        const arrayofindividuals = data.map((el) => ({
-          // eslint-disable-next-line no-underscore-dangle
-          id: el._id,
-          // eslint-disable-next-line no-underscore-dangle
-          payer: el.payeremail,
-          // eslint-disable-next-line no-underscore-dangle
-          payee: el.payeeemail,
-          payername: el.payer,
-          payeename: el.payee,
-          balance: el.balance,
-          formatedbalance: symbolvalue + numeral(el.balance).format('0,0.00'),
-        }));
-
-        console.log(arrayofindividuals);
-
-        let x;
-        const payeeperson = [];
-        const payeebalance = [];
-        const payeename = [];
-
-        for (let i = 0; i < arrayofindividuals.length; i += 1) {
-          x = -1;
-          if (!isEmpty(payeeperson)) {
-            x = payeeperson.findIndex(
-              (el) => el === arrayofindividuals[i].payee
-            );
-          }
-          console.log(x);
-
-          if (x === -1) {
-            payeeperson.push(arrayofindividuals[i].payee);
-            payeename.push(arrayofindividuals[i].payeename);
-            payeebalance.push(arrayofindividuals[i].balance);
-          } else {
-            payeebalance[x] += arrayofindividuals[i].balance;
-          }
-        }
-        console.log(payeename);
-        console.log(payeeperson);
-        console.log(payeebalance);
-
-        const pp = Object.keys(payeeperson);
-        const arrayofsummaries = pp.map((indx) => ({
-          payee: payeename[indx],
-          totalamt: payeebalance[indx],
-          formattotalamt:
-            symbolvalue + numeral(payeebalance[indx]).format('0,0.00'),
-        }));
-        this.setState({
-          summaries: [...arrayofsummaries],
-        });
-
-        this.setState({
-          individuals: arrayofindividuals,
-        });
-      })
-      .catch((err) => console.log(err));
+    const { getgrpsummaryExpenses1 } = this.props;
+    getgrpsummaryExpenses1(gpname);
   };
 
   showHandler = () => {
@@ -212,6 +92,14 @@ class Groupdetailscl extends Component {
 
   closeHandler = () => {
     this.setState({ popup: false, description: '', amount: 0.0 });
+  };
+
+  showHandler2 = (cmtid, expnid) => {
+    this.setState({ popup2: true, commentid: cmtid, expenseid: expnid });
+  };
+
+  closeHandler2 = () => {
+    this.setState({ popup2: false, commentid: null, expenseid: null });
   };
 
   showHandler1 = () => {
@@ -338,8 +226,12 @@ class Groupdetailscl extends Component {
   addcomment = (transctionid, com) => {
     // e.preventDefault();
     const trncid = transctionid;
-    const { token } = this.state;
-    console.log(trncid);
+    const { token, grpname, comment } = this.state;
+    console.log(trncid, comment);
+    if (com === '' || com.length < 1) {
+      alert(' Please enter a comment !');
+      return;
+    }
     const data = {
       trsncid: trncid,
       comment: com,
@@ -356,6 +248,7 @@ class Groupdetailscl extends Component {
         console.log('response ', response.data);
         if (response.status === 200) {
           console.log(response.data);
+          this.getgrpexpenses(grpname);
         } else {
           console.log(response.data);
           alert(response.data);
@@ -367,11 +260,37 @@ class Groupdetailscl extends Component {
       });
   };
 
-  removecomment = (id) => {
-    const { comment } = this.state;
-    this.setState({
-      comment: comment.filter((s) => s.gmemail !== id.gmemail),
-    });
+  removecomment = (cmtid, trnid) => {
+    const trncid = trnid;
+    const cmntid = cmtid;
+    // this.setState({ popup2: false });
+    this.closeHandler2();
+    const { token, grpname } = this.state;
+    console.log(trncid);
+    const data = {
+      trsncid: trncid,
+      cmtid: cmntid,
+    };
+    axios
+      .post(`${backendServer}/removecomment`, data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'content-type': 'application/json',
+        },
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          console.log(response.data);
+          this.getgrpexpenses(grpname);
+        } else {
+          console.log(response.data);
+          alert(response.data);
+        }
+      })
+      .catch((err) => {
+        console.log(err.response.data);
+        alert(err.response.data);
+      });
   };
 
   render() {
@@ -379,18 +298,12 @@ class Groupdetailscl extends Component {
     if (!cookie.load('cookie')) {
       redirectVar = <Redirect to="/" />;
     }
-    const {
-      grpname,
-      activties,
-      individuals,
-      summaries,
-      redirecttomygroup,
-      comment,
-    } = this.state;
-    const { popup, popup1 } = this.state;
+    const { grpname, redirecttomygroup, commentid, expenseid } = this.state;
+    const { activties, individuals, summaries } = this.props;
+    const { popup, popup1, popup2 } = this.state;
     const { description, amount } = this.state;
     const { errors } = this.props;
-    console.log(comment);
+    // console.log(comment);
     const expensepic = '/Group_photos/expense.png';
     let checkifactivitiesnull = false;
     if (isEmpty(activties)) {
@@ -402,7 +315,6 @@ class Groupdetailscl extends Component {
     }
     const { username1 } = this.props;
     const currusername = username1;
-    console.log(activties);
     return (
       <div>
         {redirectVar}
@@ -514,96 +426,204 @@ class Groupdetailscl extends Component {
                       {activties.map((expense) => (
                         <ul className="group-expenses_1">
                           <li>
-                            <p>
-                              <div className="Row">
-                                <div className="Column">
-                                  {expense.formatedmonth} <br />{' '}
-                                  {expense.formatedday}{' '}
-                                </div>
-                                <div className="Column">
+                            <div className="Row">
+                              <div className="Column">
+                                {expense.formatedmonth} <br />{' '}
+                                {expense.formatedday}{' '}
+                              </div>
+                              <div className="Column">
+                                {' '}
+                                <Image
+                                  src={expensepic}
+                                  className="avatarfordisplay"
+                                  alt="expense pic"
+                                />
+                              </div>
+
+                              <div className="Column">
+                                <h4>{expense.descp}</h4>
+                              </div>
+                              <div className="Column"> </div>
+                              <div className="Column"> </div>
+                              <div className="Column"> </div>
+                              <div className="Column"> </div>
+
+                              <div className="Column">
+                                <p>{expense.paid} </p>
+                                <h5>{expense.amnt} </h5>
+                              </div>
+
+                              <div className="Column"> </div>
+                            </div>
+
+                            <div className="Main">
+                              <div className="BoxToggle">
+                                <p>Comments</p>
+                              </div>
+                              <div className="ExpandBoxes">
+                                <div className="BoxExpand">
                                   {' '}
-                                  <Image
-                                    src={expensepic}
-                                    className="avatarfordisplay"
-                                    alt="expense pic"
-                                  />
-                                </div>
-
-                                <div className="Column">
-                                  <h4>{expense.descp}</h4>
-                                </div>
-                                <div className="Column"> </div>
-                                <div className="Column"> </div>
-                                <div className="Column"> </div>
-                                <div className="Column"> </div>
-
-                                <div className="Column">
-                                  <p>{expense.paid} </p>
-                                  <h5>{expense.amnt} </h5>
-                                </div>
-
-                                <div className="Column"> </div>
-                              </div>
-
-                              <div className="Main">
-                                <div className="BoxToggle">
-                                  <p>Comments</p>
-                                </div>
-                                <div className="ExpandBoxes">
-                                  <div className="BoxExpand">
-                                    {' '}
-                                    <p>Hello</p>
-                                    <p>{expense.paid}</p>
-                                    <div
-                                      className="grpnameemail"
-                                      style={{
-                                        width: '300px',
-                                        display: 'flex',
-                                        flexDirection: 'row',
-                                      }}
-                                    >
-                                      <div
-                                        className="grpnameemail"
-                                        style={{
-                                          width: '300px',
-                                        }}
-                                      >
-                                        <Groupcomments
-                                          // eslint-disable-next-line react/jsx-props-no-spreading
-                                          {...this.props}
-                                          addcomment={(val) => {
-                                            this.addcomment(expense.value, val);
+                                  <IsEmpty
+                                    value={expense.comments}
+                                    yes={() => (
+                                      <div>
+                                        <h7>
+                                          There are no comments on this expense
+                                          yet!
+                                        </h7>
+                                        <div
+                                          style={{
+                                            float: 'bottom',
                                           }}
-                                        />
+                                        >
+                                          <Groupcomments
+                                            // eslint-disable-next-line react/jsx-props-no-spreading
+                                            {...this.props}
+                                            addcomment={(val) => {
+                                              this.addcomment(
+                                                expense.value,
+                                                val
+                                              );
+                                            }}
+                                          />
+                                        </div>
                                       </div>
-                                      <button
-                                        type="button"
-                                        name="removegm"
-                                        onClick={() => this.removecomment()}
-                                        className="removegm"
-                                        style={{
-                                          'background-color': 'white',
-                                          border: 'none',
-                                          color: '#ff652f',
-                                          'font-weight': 'bolder',
-                                        }}
-                                      >
-                                        X
-                                      </button>
-                                    </div>
-                                  </div>
+                                    )}
+                                    no={() => (
+                                      <div>
+                                        {' '}
+                                        <h7>NOTES AND COMMENTS</h7>
+                                        {expense.comments.map((cmt) => (
+                                          <ul className="group-expenses-group">
+                                            <li>
+                                              {(() => {
+                                                if (
+                                                  JSON.stringify(
+                                                    cmt.commentedby
+                                                  ) ===
+                                                  JSON.stringify(currusername)
+                                                ) {
+                                                  return <h6>You </h6>;
+                                                }
+
+                                                return (
+                                                  <h6>{cmt.commentedby} </h6>
+                                                );
+                                              })()}
+                                              <h6>
+                                                <p
+                                                  style={{
+                                                    textWeight: 'bold',
+                                                  }}
+                                                >
+                                                  {cmt.formatedcmtday}{' '}
+                                                  {cmt.formatedcmtmonth}
+                                                </p>
+                                                {cmt.comment}{' '}
+                                              </h6>
+                                              {(() => {
+                                                if (
+                                                  JSON.stringify(
+                                                    cmt.commentedby
+                                                  ) ===
+                                                  JSON.stringify(currusername)
+                                                ) {
+                                                  return (
+                                                    <div>
+                                                      <Button
+                                                        className="Signup-default"
+                                                        onClick={() => {
+                                                          this.showHandler2(
+                                                            cmt.cmtid,
+                                                            expense.value
+                                                          );
+                                                        }}
+                                                        style={{
+                                                          backgroundColor:
+                                                            'rgb(228, 228, 228)',
+                                                          border: 'none',
+                                                          color: '#ff652f',
+                                                          fontWeight: 'bolder',
+                                                        }}
+                                                      >
+                                                        X
+                                                      </Button>
+                                                    </div>
+                                                  );
+                                                }
+
+                                                return <p> </p>;
+                                              })()}
+                                            </li>
+                                          </ul>
+                                        ))}
+                                        <div>
+                                          <Modal
+                                            show={popup2}
+                                            onHide={this.closeHandler2}
+                                          >
+                                            <Modal.Header closeButton>
+                                              <Modal.Title>
+                                                Remove comment
+                                              </Modal.Title>
+                                            </Modal.Header>
+                                            <Modal.Body>
+                                              Do you want to remove your
+                                              comment?
+                                            </Modal.Body>
+                                            <Modal.Footer>
+                                              <Button
+                                                className="login-default"
+                                                onClick={() =>
+                                                  this.removecomment(
+                                                    commentid,
+                                                    expenseid
+                                                  )
+                                                }
+                                              >
+                                                √ Yes
+                                              </Button>
+                                              <Button
+                                                className="Signup-default"
+                                                onClick={this.closeHandler2}
+                                              >
+                                                x No
+                                              </Button>
+                                            </Modal.Footer>
+                                          </Modal>
+                                        </div>
+                                        <div
+                                          style={{
+                                            float: 'bottom',
+                                          }}
+                                        >
+                                          <Groupcomments
+                                            // eslint-disable-next-line react/jsx-props-no-spreading
+                                            {...this.props}
+                                            addcomment={(val) => {
+                                              this.addcomment(
+                                                expense.value,
+                                                val
+                                              );
+                                            }}
+                                          />
+                                        </div>
+                                      </div>
+                                    )}
+                                  />{' '}
+                                  <br />
                                 </div>
                               </div>
+                            </div>
 
-                              <hr
-                                style={{
-                                  height: '2px',
-                                  border: 'none',
-                                  color: 'black',
-                                  'background-color': 'Grey',
-                                }}
-                              />
-                            </p>
+                            <hr
+                              style={{
+                                height: '2px',
+                                border: 'none',
+                                color: 'black',
+                                'background-color': 'Grey',
+                              }}
+                            />
                           </li>
                         </ul>
                       ))}
@@ -668,6 +688,8 @@ class Groupdetailscl extends Component {
 }
 function mapDispatchToProps(dispatch) {
   return {
+    getgrpExpenses1: (gpname) => dispatch(getgrpExpenses(gpname)),
+    getgrpsummaryExpenses1: (gpname) => dispatch(getgrpsummaryExpenses(gpname)),
     reset1: () => dispatch(reset()),
   };
 }
@@ -677,6 +699,9 @@ function mapStateToProps(store) {
   return {
     username1: store.login.user.username,
     defaultcurrency: store.login.user.currencydef,
+    activties: store.groups.activities,
+    individuals: store.groups.individuals,
+    summaries: store.groups.summaries,
   };
 }
 
@@ -687,16 +712,26 @@ const Groupdetails = connect(
 
 Groupdetailscl.propTypes = {
   reset1: Proptypes.func,
+  getgrpExpenses1: Proptypes.func,
+  getgrpsummaryExpenses1: Proptypes.func,
   username1: Proptypes.string,
   errors: Proptypes.string,
   defaultcurrency: Proptypes.string,
+  activties: Proptypes.instanceOf(Array),
+  individuals: Proptypes.instanceOf(Array),
+  summaries: Proptypes.instanceOf(Array),
 };
 
 Groupdetailscl.defaultProps = {
   reset1: () => {},
+  getgrpExpenses1: () => {},
+  getgrpsummaryExpenses1: () => {},
   defaultcurrency: '',
   errors: '',
   username1: '',
+  activties: [],
+  individuals: [],
+  summaries: [],
   // gName: '',
 };
 

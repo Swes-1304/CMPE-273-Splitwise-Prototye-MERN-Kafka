@@ -1,6 +1,5 @@
 import { createStore, applyMiddleware, compose } from 'redux';
 import thunk from 'redux-thunk';
-// eslint-disable-next-line import/no-cycle
 import rootReducer from './reducers/index';
 // import loginReducer from './reducers/loginReducer';
 // import errorReducer from './reducers/errorReducer';

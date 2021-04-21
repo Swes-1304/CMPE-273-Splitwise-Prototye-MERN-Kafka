@@ -28,20 +28,23 @@ class Groupcomments extends Component {
     const { addcomment } = this.props;
     return (
       <div>
-        <input
-          type="textarea"
-          placeholder="Add a comment"
+        ​<form name="comment" id="comment" />
+        <textarea
+          name="comment"
+          form="comment"
           value={comment}
-          name="comment box"
-          id="comment box"
+          placeholder="Add a comment"
+          id="comment"
+          style={{ float: 'right' }}
           onChange={(e) => this.addcommentChangeHandler(e)}
           required
         />
-
+        <br />
         <div className="savebtn">
           <button
             data-testid="Create"
             type="button"
+            style={{ float: 'right' }}
             className="Signup-default"
             onClick={() => {
               addcomment(comment);

@@ -4,7 +4,6 @@ import axios from 'axios';
 import { Redirect } from 'react-router';
 import { Link } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
-// import numeral from 'numeral';
 import { Modal, Form } from 'react-bootstrap';
 import { isEmpty } from 'lodash';
 import Select from 'react-select';
@@ -41,225 +40,6 @@ class Dashboardcl extends Component {
       settleupliststate: settleuplist,
     });
   }
-  /* 
-  componentWillReceiveProps(nextProps) {
-    console.log('props', this.props);
-    const { balances } = this.props;
-    if (balances && nextProps.balances !== balances) {
-      const { username1, email1, defaultcurrency } = this.props;
-      const regExp = /\(([^)]+)\)/;
-      const getvalue = regExp.exec(defaultcurrency);
-      const symbolvalue = getvalue[1];
-      const arraytotalsummary = nextProps.balances.map((el) => ({
-        totalblc: symbolvalue + numeral(el.total).format('0,0.00'),
-        youowe: symbolvalue + numeral(el.totalyouowe).format('0,0.00'),
-        youareowed: symbolvalue + numeral(el.totalyouareowed).format('0,0.00'),
-      }));
-
-      console.log(arraytotalsummary);
-      this.setState({
-        totalsummary: arraytotalsummary,
-      });
-
-      console.log(balances.indiyouareowed);
-      const arrayindisummariesyouareowed = nextProps.balances[0].indiyouareowed.map(
-        (el) => ({
-          payer1: el.payer,
-          payee1: el.payee,
-          payer1email: el.payeremail,
-          payee1email: el.payeeemail,
-          indiamt1: el.balance,
-          grpname1: el.groupname,
-          formatindiamt1: symbolvalue + numeral(el.balance).format('0,0.00'),
-        })
-      );
-      this.setState({
-        payerbalances: [...arrayindisummariesyouareowed],
-      });
-      // eslint-disable-next-line react/destructuring-assignment
-      console.log(this.state.payerbalances);
-
-      const arrayindisummariesyouowe = nextProps.balances[0].indiyouowe.map(
-        (el) => ({
-          payer: el.payer,
-          payee: el.payee,
-          payeremail: el.payeremail,
-          payeeemail: el.payeeemail,
-          indiamt: el.balance,
-          grpname: el.groupname,
-          formatindiamt: symbolvalue + numeral(el.balance).format('0,0.00'),
-        })
-      );
-      this.setState({
-        payeebalances: [...arrayindisummariesyouowe],
-      });
-
-      // eslint-disable-next-line react/destructuring-assignment
-      console.log(this.state.payeebalances);
-
-      console.log(arrayindisummariesyouareowed, arrayindisummariesyouowe);
-
-      // total payee for the logged in user
-      const totalpayeename = [];
-      const totalpayername = [];
-      const totalamaount = [];
-
-      // total payer for the logged in user
-      const totalpayeename1 = [];
-      const totalpayername1 = [];
-      const totalamaount1 = [];
-
-      const settleupemaillist = [];
-      const settleupnamelist = [];
-
-      let x;
-      let y;
-      for (let i = 0; i < arrayindisummariesyouareowed.length; i += 1) {
-        x = -1;
-        if (
-          username1 === arrayindisummariesyouareowed[i].payer1 &&
-          arrayindisummariesyouareowed[i].indiamt1 !== 0
-        ) {
-          if (!isEmpty(totalpayeename1)) {
-            x = totalpayeename1.findIndex(
-              (el) => el === arrayindisummariesyouareowed[i].payee1
-            );
-          }
-          if (x > -1) {
-            totalamaount1[x] += arrayindisummariesyouareowed[i].indiamt1;
-          } else {
-            totalpayeename1.push(arrayindisummariesyouareowed[i].payee1);
-            totalamaount1.push(arrayindisummariesyouareowed[i].indiamt1);
-            totalpayername1.push(username1);
-          }
-        }
-      }
-
-      for (let i = 0; i < arrayindisummariesyouowe.length; i += 1) {
-        x = -1;
-        if (
-          username1 === arrayindisummariesyouowe[i].payee &&
-          arrayindisummariesyouowe[i].indiamt !== 0
-        ) {
-          if (!isEmpty(totalpayername)) {
-            x = totalpayername.findIndex(
-              (el) => el === arrayindisummariesyouowe[i].payer
-            );
-          }
-          if (x > -1) {
-            totalamaount[x] += arrayindisummariesyouowe[i].indiamt;
-          } else {
-            totalpayername.push(arrayindisummariesyouowe[i].payer);
-            totalamaount.push(arrayindisummariesyouowe[i].indiamt);
-            totalpayeename.push(username1);
-          }
-        }
-      }
-
-      const payeetotalblnc = Object.keys(totalpayeename);
-      const arrayofpayeetotalblnc = payeetotalblnc.map((indx) => ({
-        payee2: totalpayeename[indx],
-        indiamt2: totalamaount[indx],
-        formatindiamt2:
-          symbolvalue + numeral(totalamaount[indx]).format('0,0.00'),
-        payer2: totalpayername[indx],
-      }));
-      console.log(arrayofpayeetotalblnc);
-      this.setState({
-        totalpayeeuser: [...arrayofpayeetotalblnc],
-      });
-
-      const payertotalblnc = Object.keys(totalpayeename1);
-      const arrayofpayertotalblnc = payertotalblnc.map((indx) => ({
-        payee3: totalpayeename1[indx],
-        indiamt3: totalamaount1[indx],
-        formatindiamt3:
-          symbolvalue + numeral(totalamaount1[indx]).format('0,0.00'),
-        payer3: totalpayername1[indx],
-      }));
-      console.log(arrayofpayertotalblnc);
-      this.setState({
-        totalpayeruser: [...arrayofpayertotalblnc],
-      });
-
-      // list of users for settle up
-      for (let j = 0; j < arrayindisummariesyouareowed.length; j += 1) {
-        y = -1;
-        if (
-          email1 !== arrayindisummariesyouareowed[j].payee1email &&
-          arrayindisummariesyouareowed[j].indiamt1 !== 0
-        ) {
-          if (!isEmpty(settleupemaillist)) {
-            y = settleupemaillist.findIndex(
-              (el) => el === arrayindisummariesyouareowed[j].payee1email
-            );
-          }
-
-          if (y === -1) {
-            settleupnamelist.push(arrayindisummariesyouareowed[j].payee1);
-            settleupemaillist.push(arrayindisummariesyouareowed[j].payee1email);
-          }
-        } else if (
-          JSON.stringify(email1) !==
-            JSON.stringify(arrayindisummariesyouareowed[j].payer1email) &&
-          arrayindisummariesyouareowed[j].indiamt1 !== 0
-        ) {
-          if (!isEmpty(settleupemaillist)) {
-            y = settleupemaillist.findIndex(
-              (el) => el === arrayindisummariesyouareowed[j].payer1email
-            );
-          }
-
-          if (y === -1) {
-            settleupnamelist.push(arrayindisummariesyouareowed[j].payer1);
-            settleupemaillist.push(arrayindisummariesyouareowed[j].payer1email);
-          }
-        }
-      }
-      for (let j = 0; j < arrayindisummariesyouowe.length; j += 1) {
-        y = -1;
-        if (
-          email1 !== arrayindisummariesyouowe[j].payeeemail &&
-          arrayindisummariesyouowe[j].indiamt !== 0
-        ) {
-          if (!isEmpty(settleupemaillist)) {
-            y = settleupemaillist.findIndex(
-              (el) => el === arrayindisummariesyouowe[j].payeeemail
-            );
-          }
-
-          if (y === -1) {
-            settleupnamelist.push(arrayindisummariesyouowe[j].payee);
-            settleupemaillist.push(arrayindisummariesyouowe[j].payeeemail);
-          }
-        } else if (
-          JSON.stringify(email1) !==
-            JSON.stringify(arrayindisummariesyouowe[j].payeremail) &&
-          arrayindisummariesyouowe[j].indiamt1 !== 0
-        ) {
-          if (!isEmpty(settleupemaillist)) {
-            y = settleupemaillist.findIndex(
-              (el) => el === arrayindisummariesyouowe[j].payeremail
-            );
-          }
-
-          if (y === -1) {
-            settleupnamelist.push(arrayindisummariesyouowe[j].payer);
-            settleupemaillist.push(arrayindisummariesyouowe[j].payeremail);
-          }
-        }
-      }
-      const setteluplist = Object.keys(settleupemaillist);
-      const arrayforselect = setteluplist.map((indx) => ({
-        value: settleupemaillist[indx],
-        label: settleupnamelist[indx],
-      }));
-      this.setState({
-        settleuplist: [...arrayforselect],
-      });
-    }
-  }
-  */
 
   showHandler = () => {
     this.setState({ popup: true });
@@ -491,16 +271,16 @@ class Dashboardcl extends Component {
                           <p>
                             <span>
                               {' '}
-                              You Owe{' '}
+                              <b> You Owe </b>{' '}
                               <h7
                                 style={{
                                   color: '#ff652f',
-                                  'font-weight': 'bold',
+                                  fontWeight: 'bold',
                                 }}
                               >
                                 {expense2.formatindiamt2}
                               </h7>{' '}
-                              to {expense2.payer2}
+                              to <br /> <b>{expense2.payer2}</b>
                               {payeebalances
                                 .filter(
                                   (exp1) => exp1.payer === expense2.payer2

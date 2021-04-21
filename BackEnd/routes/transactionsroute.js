@@ -218,7 +218,7 @@ router.post('/addcomment', passport.authenticate('jwt', { session: false }), asy
 });
 
 router.post(
-  '/deletecomment',
+  '/removecomment',
   passport.authenticate('jwt', { session: false }),
   async (req, res) => {
     console.log('Inside  deletecomment');
@@ -226,11 +226,41 @@ router.post(
 
     const _id = req.user._id;
     const trsncid = req.body.trsncid;
-    const comment = req.body.comment;
+    const cmtid = req.body.cmtid;
+    console.log(cmtid);
+    await Transactions.findOneAndUpdate(
+      { _id: trsncid },
+      {
+        $pull: {
+          tnotes: cmtid,
+        },
+      },
+      {
+        new: true,
+      }
+    )
+      .then(async (user) => {
+        console.log('updated transactions');
 
-    // await createcomments(_id, trsncid, comment);
+        await Comments.deleteOne({ trancid: trsncid, _id: cmtid }, async (err, result) => {
+          if (err) {
+            return res.json({
+              success: false,
+              errors: {
+                title: 'cannot find transactions',
+                detail: err.message,
+                error: err,
+              },
+            });
+          }
 
-    res.status(200).send('Comment added succesfully succesfully');
+          res.status(200).send('Comment removed succesfully succesfully');
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(500).send({ error: err });
+      });
   }
 );
 

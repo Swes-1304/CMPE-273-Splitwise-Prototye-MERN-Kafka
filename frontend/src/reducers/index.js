@@ -3,6 +3,7 @@ import loginReducer from './loginReducer';
 import groupReducer from './groupReducer';
 // eslint-disable-next-line import/no-cycle
 import balanceReducer from './balanceReducer';
+import transactionsReducer from './transactionsReducer';
 import { USER_LOGOUT } from '../actions/types';
 
 // import signupReducer from './signupReducer';
@@ -22,12 +23,15 @@ const rootReducer = (state, action) => {
     state.groups = undefined;
     // eslint-disable-next-line no-param-reassign
     state.balance = undefined;
+    // eslint-disable-next-line no-param-reassign
+    state.transactions = undefined;
   }
   // return appReducer(state, action);
   return {
     login: loginReducer(state.login, action, state),
     groups: groupReducer(state.groups, action, state),
     balance: balanceReducer(state.balance, action, state),
+    transactions: transactionsReducer(state.transactions, action, state),
   };
 };
 

@@ -4,13 +4,14 @@ import axios from 'axios';
 import { Redirect } from 'react-router';
 // import { Link } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
-import numeral from 'numeral';
+// import numeral from 'numeral';
 import { connect } from 'react-redux';
 import Proptypes from 'prop-types';
 import { Dropdown } from 'react-bootstrap';
 import Select from 'react-select';
 // import { Row, Col, Container, Jumbotron } from 'react-bootstrap';
 import { isEmpty } from 'lodash';
+import { recentActivities } from '../../actions/recentactivityAction';
 import Sidebarcomp from '../navbar/sidebar';
 import Navheader from '../navbar/navbar';
 import { reset } from '../../actions/creategroupAction';
@@ -24,9 +25,8 @@ class Recentactivitycl extends Component {
     super(props);
     this.state = {
       token: localStorage.getItem('token'),
-      recent: [],
-      recentsetlle: [],
       groupslist: [],
+      recentstate: [],
       gpselectoptions: [],
       selectedvalue: [],
       asc: false,
@@ -34,18 +34,28 @@ class Recentactivitycl extends Component {
     };
     this.sorthandlerasc = this.sorthandlerasc.bind(this);
     this.sorthandlerdesc = this.sorthandlerdesc.bind(this);
-    // this.getrecentacitvities = this.getrecentacitvities.bind(this);
+    // this.pagesizehandler = this.pagesizehandler.bind(this);
   }
 
-  componentWillMount() {
-    const recentacitvity1 = this.getrecentacitvities();
+  componentDidMount() {
+    this.getrecentacitvities();
     const getuserpgroups = this.getuserpgroups();
-    this.setState({
-      recent: recentacitvity1,
-      groupslist: getuserpgroups,
-    });
+
     const { reset1 } = this.props;
     reset1();
+    const { recent } = this.props;
+    this.setState({
+      groupslist: getuserpgroups,
+      recentstate: recent,
+    });
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    const { recentstate } = this.state;
+    if (nextState.recentstate.length !== recentstate.length) {
+      return true;
+    }
+    return false;
   }
 
   getuserpgroups = () => {
@@ -58,16 +68,13 @@ class Recentactivitycl extends Component {
         },
       })
       .then((response) => {
-        console.log(response.data);
         const newaar = response.data.map((el) => el);
-        console.log(newaar);
         const { data } = response;
 
         const arrayforselect = data.map((el) => ({
           value: el,
           label: el,
         }));
-        console.log(arrayforselect);
         this.setState({
           groupslist: newaar,
           gpselectoptions: arrayforselect,
@@ -77,14 +84,12 @@ class Recentactivitycl extends Component {
         this.setState({
           gpselectoptions: [...gpselectoptions, obj],
         });
-        console.log(gpselectoptions);
       })
       .catch((err) => console.log(err));
   };
 
   sorthandlerasc = () => {
-    const { recent, asc, desc } = this.state;
-    console.log(recent);
+    const { recentstate, asc, desc } = this.state;
     if (asc === false && desc === true) {
       const sortasc = (recent1) => (key) =>
         [...recent1].sort(
@@ -93,9 +98,9 @@ class Recentactivitycl extends Component {
         );
       // .reverse();
 
-      const ascsort = sortasc(recent)('date1');
+      const ascsort = sortasc(recentstate)('date1');
       this.setState({
-        recent: ascsort,
+        recentstate: ascsort,
         asc: true,
         desc: false,
       });
@@ -103,8 +108,7 @@ class Recentactivitycl extends Component {
   };
 
   sorthandlerdesc = () => {
-    const { recent, asc, desc } = this.state;
-    console.log(recent);
+    const { recentstate, asc, desc } = this.state;
     if (asc === true && desc === false) {
       const sortadesc = (recent1) => (key) =>
         [...recent1]
@@ -114,9 +118,9 @@ class Recentactivitycl extends Component {
           )
           .reverse();
 
-      const descsort = sortadesc(recent)('date1');
+      const descsort = sortadesc(recentstate)('date1');
       this.setState({
-        recent: descsort,
+        recentstate: descsort,
         asc: false,
         desc: true,
       });
@@ -124,108 +128,33 @@ class Recentactivitycl extends Component {
   };
 
   gpselectoptionshandler = (e) => {
-    // const { selectvalue } = this.state;
     const newarr = e.value;
-    console.log(e.value);
     this.setState({ selectedvalue: newarr });
   };
 
   displayresults = (groupname) => {
-    const { recent } = this.state;
-    console.log(recent);
-    console.log(groupname);
+    const { recent } = this.props;
+    this.setState({
+      recentstate: recent,
+    });
+    const { recentstate } = this.state;
     const filtergrp = (recent1) => (key) =>
       [...recent1].filter((grp1) => grp1[key] === groupname);
 
-    const filtergrps = filtergrp(recent)('gpname');
-    console.log(filtergrps);
+    const filtergrps = filtergrp(recentstate)('gpname');
     this.setState({
-      recent: filtergrps,
+      recentstate: filtergrps,
     });
+    if (groupname === 'All Groups') {
+      this.setState({
+        recentstate: recent,
+      });
+    }
   };
 
   getrecentacitvities = () => {
-    const { token } = this.state;
-    axios
-      .get(`${backendServer}/getrecentacitvities`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'content-type': 'application/json',
-        },
-      })
-      .then((response) => {
-        console.log(response.data);
-        console.log(typeof response.data);
-        // const { data } = response;
-        const data1 = response.data[0];
-        const data2 = response.data[1];
-        let mergedata1anddata2 = [];
-        // console.log(data);
-        console.log(data1);
-        console.log(data2);
-        const { username1, email1, defaultcurrency } = this.props;
-        console.log(username1, email1);
-        const regExp = /\(([^)]+)\)/;
-        const getvalue = regExp.exec(defaultcurrency);
-        const symbolvalue = getvalue[1];
-        const arrayofrecentactivitiesdata1 = data1.map((el1) => ({
-          paid: el1.payedBy.username,
-          gpname: el1.groupid.groupname,
-          descp: el1.tdescription,
-          amnt:
-            symbolvalue + numeral(el1.tamount.$numberDecimal).format('0,0.00'),
-          date1: el1.tdate,
-          time1: new Date(el1.tdate).toLocaleTimeString(),
-          formatedmonth: new Date(el1.tdate).toLocaleString('default', {
-            month: 'short',
-          }),
-          formatedday: new Date(el1.tdate).getUTCDate(),
-          formatedyear: new Date(el1.tdate).getUTCFullYear(),
-        }));
-        console.log(arrayofrecentactivitiesdata1);
-
-        const arrayofrecentactivitiesdata2 = data2.map((el2) => ({
-          paid: el2.payedBy.username,
-          gpname: null,
-          descp: el2.tdescription,
-          amnt:
-            symbolvalue + numeral(el2.tamount.$numberDecimal).format('0,0.00'),
-          date1: el2.tdate,
-          time1: new Date(el2.tdate).toLocaleTimeString(),
-          formatedmonth: new Date(el2.tdate).toLocaleString('default', {
-            month: 'short',
-          }),
-          formatedday: new Date(el2.tdate).getUTCDate(),
-          formatedyear: new Date(el2.tdate).getUTCFullYear(),
-        }));
-        console.log(arrayofrecentactivitiesdata2);
-        mergedata1anddata2 = [
-          ...arrayofrecentactivitiesdata1,
-          ...arrayofrecentactivitiesdata2,
-        ];
-        console.log(
-          new Date(arrayofrecentactivitiesdata1[0].date1).toLocaleTimeString(),
-          new Date(arrayofrecentactivitiesdata1[0].date1).toLocaleString()
-        );
-        // console.log(arrayofrecentactivitiesdata1);
-        const sortades = (recentsettle) => (key) =>
-          [...recentsettle]
-            .sort(
-              (intitial, next) =>
-                new Date(intitial[key]).getTime() -
-                new Date(next[key]).getTime()
-            )
-            .reverse();
-
-        const descsortsettle = sortades(mergedata1anddata2)('date1');
-        console.log(mergedata1anddata2);
-        console.log(descsortsettle);
-
-        this.setState({
-          recent: descsortsettle,
-        });
-      })
-      .catch((err) => console.log(err));
+    const { recentActivities1 } = this.props;
+    recentActivities1();
   };
 
   render() {
@@ -233,24 +162,17 @@ class Recentactivitycl extends Component {
     if (!cookie.load('cookie')) {
       redirectVar = <Redirect to="/" />;
     }
-    const { errors, username1 } = this.props;
+    const { username1, errors } = this.props;
     const currusername = username1;
     const {
-      recent,
+      recentstate,
       groupslist,
       gpselectoptions,
       selectedvalue,
-      recentsetlle,
     } = this.state;
-    console.log(
-      recent,
-      groupslist,
-      gpselectoptions,
-      selectedvalue,
-      recentsetlle
-    );
+    console.log(recentstate, groupslist, gpselectoptions, selectedvalue);
     let checkifactivitynull = false;
-    if (isEmpty(recent)) {
+    if (isEmpty(recentstate)) {
       checkifactivitynull = true;
     }
     return (
@@ -277,6 +199,38 @@ class Recentactivitycl extends Component {
                   <div className="title" style={{ 'text-align': 'center' }}>
                     <h7>RECENT ACTIVITY</h7>
                   </div>
+                  <Dropdown>
+                    <Dropdown.Toggle
+                      className="login-default"
+                      id="dropdown-basic"
+                    >
+                      Page Size
+                    </Dropdown.Toggle>
+
+                    <Dropdown.Menu>
+                      <Dropdown.Item
+                        onSelect={() => {
+                          // this.pagesizehandler();
+                        }}
+                      >
+                        Page Size 2{' '}
+                      </Dropdown.Item>
+                      <Dropdown.Item
+                        onSelect={() => {
+                          // this.pagesizehandler();
+                        }}
+                      >
+                        Page Size 5
+                      </Dropdown.Item>
+                      <Dropdown.Item
+                        onSelect={() => {
+                          // this.pagesizehandler();
+                        }}
+                      >
+                        Page Size 10
+                      </Dropdown.Item>
+                    </Dropdown.Menu>
+                  </Dropdown>
                 </div>
 
                 <div className="dashboard-center-section-block">
@@ -334,7 +288,8 @@ class Recentactivitycl extends Component {
                     onChange={(e) => this.gpselectoptionshandler(e)}
                     styles={{
                       display: 'flex',
-                      'flex-direction': 'row',
+                      flexDirection: 'row',
+                      width: '30px',
                     }}
                   />
                   <Button
@@ -358,7 +313,7 @@ class Recentactivitycl extends Component {
                 ) : (
                   <div>
                     {' '}
-                    {recent.map((activities) => (
+                    {recentstate.map((activities) => (
                       <ul
                         className="recent-expenses"
                         style={{ 'list-style-type': 'none' }}
@@ -455,19 +410,19 @@ class Recentactivitycl extends Component {
 
 function mapDispatchToProps(dispatch) {
   return {
+    recentActivities1: () => dispatch(recentActivities()),
     reset1: () => dispatch(reset()),
   };
 }
 
 function mapStateToProps(store) {
-  console.log(store);
   return {
     username1: store.login.user.username,
     email1: store.login.user.email,
     defaultcurrency: store.login.user.currencydef,
     errors: store.groups.error,
-    iscreateSuccess: store.groups.createSuccess,
     usergroups: store.groups.groups,
+    recent: store.transactions.recent,
   };
 }
 
@@ -480,8 +435,8 @@ Recentactivitycl.propTypes = {
   reset1: Proptypes.func,
   errors: Proptypes.string,
   username1: Proptypes.string,
-  email1: Proptypes.string,
-  defaultcurrency: Proptypes.string,
+  recent: Proptypes.instanceOf(Array),
+  recentActivities1: Proptypes.func,
 };
 
 Recentactivitycl.defaultProps = {
@@ -489,8 +444,8 @@ Recentactivitycl.defaultProps = {
   reset1: () => {},
   errors: '',
   username1: '',
-  email1: '',
-  defaultcurrency: '',
+  recent: [],
+  recentActivities1: () => {},
 };
 
 export default Recentactivity;
