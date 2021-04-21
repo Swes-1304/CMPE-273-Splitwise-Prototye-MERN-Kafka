@@ -27,6 +27,7 @@
     "react-cookies": "^0.1.1",
     "react-dom": "^17.0.1",
     "react-dropdown-select": "^4.7.4",
+    "react-expand-animated": "^1.0.2",
     "react-pro-sidebar": "^0.6.0",
     "react-redux": "^7.2.3",
     "react-router": "^5.2.0",

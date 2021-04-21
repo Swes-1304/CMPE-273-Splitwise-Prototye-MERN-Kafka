@@ -184,7 +184,7 @@ class Profilepagecl extends Component {
       }
       console.log(formerrors.emailerrors);
     }
-    if (!phnpattern.test(phonenumber)) {
+    if (!phnpattern.test(phonenumber) && phonenumber.length > 0) {
       formisvalid = false;
       formerrors.phoneerrors = 'Phone Number is not valid!';
       console.log(formerrors.phoneerrors);

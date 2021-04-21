@@ -5,21 +5,25 @@ import { Redirect } from 'react-router';
 // import { Link } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 import numeral from 'numeral';
+import { connect } from 'react-redux';
+import Proptypes from 'prop-types';
 import { Dropdown } from 'react-bootstrap';
 import Select from 'react-select';
 // import { Row, Col, Container, Jumbotron } from 'react-bootstrap';
 import { isEmpty } from 'lodash';
 import Sidebarcomp from '../navbar/sidebar';
 import Navheader from '../navbar/navbar';
+import { reset } from '../../actions/creategroupAction';
 import '../navbar/navbar.css';
 import '../dashboard/dashboard.css';
 import './recent_activity.css';
+import backendServer from '../../webConfig';
 
-class Recentactivity extends Component {
+class Recentactivitycl extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      userid: '',
+      token: localStorage.getItem('token'),
       recent: [],
       recentsetlle: [],
       groupslist: [],
@@ -34,32 +38,34 @@ class Recentactivity extends Component {
   }
 
   componentWillMount() {
-    const userid1 = sessionStorage.getItem('userid');
-    const recentacitvity1 = this.getrecentacitvities(userid1);
-    const getuserpgroups = this.getuserpgroups(userid1);
+    const recentacitvity1 = this.getrecentacitvities();
+    const getuserpgroups = this.getuserpgroups();
     this.setState({
-      userid: userid1,
       recent: recentacitvity1,
       groupslist: getuserpgroups,
     });
+    const { reset1 } = this.props;
+    reset1();
   }
 
-  getuserpgroups = (userid) => {
+  getuserpgroups = () => {
+    const { token } = this.state;
     axios
-      .get(`http://localhost:3001/getuserpgroups/${userid}`, {
+      .get(`${backendServer}/getuserpgroups/`, {
         headers: {
+          Authorization: `Bearer ${token}`,
           'content-type': 'application/json',
         },
       })
       .then((response) => {
         console.log(response.data);
-        console.log(typeof response.data);
-        const newaar = response.data.map((el) => el.gpname);
+        const newaar = response.data.map((el) => el);
         console.log(newaar);
         const { data } = response;
+
         const arrayforselect = data.map((el) => ({
-          value: el.gpname,
-          label: el.gpname,
+          value: el,
+          label: el,
         }));
         console.log(arrayforselect);
         this.setState({
@@ -138,10 +144,12 @@ class Recentactivity extends Component {
     });
   };
 
-  getrecentacitvities = (gpname) => {
+  getrecentacitvities = () => {
+    const { token } = this.state;
     axios
-      .get(`http://localhost:3001/getrecentacitvities/${gpname}`, {
+      .get(`${backendServer}/getrecentacitvities`, {
         headers: {
+          Authorization: `Bearer ${token}`,
           'content-type': 'application/json',
         },
       })
@@ -155,46 +163,17 @@ class Recentactivity extends Component {
         // console.log(data);
         console.log(data1);
         console.log(data2);
-        const defaultcurr = sessionStorage.getItem('defaultcurrency');
-        console.log(defaultcurr);
+        const { username1, email1, defaultcurrency } = this.props;
+        console.log(username1, email1);
         const regExp = /\(([^)]+)\)/;
-        const getvalue = regExp.exec(defaultcurr);
+        const getvalue = regExp.exec(defaultcurrency);
         const symbolvalue = getvalue[1];
-        /* const date = new Date('2013-03-10T02:00:00Z');
-        console.log(
-          `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
-        );
-        console.log(
-          `${new Date('2013-03-10T02:00:00Z').getFullYear()}-${
-            new Date('2013-03-10T02:00:00Z').getMonth() + 1
-          }-${new Date('2013-03-10T02:00:00Z').getDate()}`
-        );
-        const defaultcurr = sessionStorage.getItem('defaultcurrency');
-        console.log(defaultcurr);
-        const regExp = /\(([^)]+)\)/;
-        const getvalue = regExp.exec(defaultcurr);
-        const symbolvalue = getvalue[1];
-        const arrayofrecentactivities = data.map((el) => ({
-          paid: el.usersname,
-          gpname: el.gpname,
-          descp: el.tdescription,
-          amnt: symbolvalue + numeral(el.tamount).format('0,0.00'),
-          date1: el.tdate,
-          formatedmonth: new Date(el.tdate).toLocaleString('default', {
-            month: 'short',
-          }),
-          formatedday: new Date(el.tdate).getUTCDate(),
-        }));
-        console.log(arrayofrecentactivities);
-        this.setState({
-          recent: arrayofrecentactivities,
-        });
-*/
         const arrayofrecentactivitiesdata1 = data1.map((el1) => ({
-          paid: el1.usersname,
-          gpname: el1.gpname,
+          paid: el1.payedBy.username,
+          gpname: el1.groupid.groupname,
           descp: el1.tdescription,
-          amnt: symbolvalue + numeral(el1.tamount).format('0,0.00'),
+          amnt:
+            symbolvalue + numeral(el1.tamount.$numberDecimal).format('0,0.00'),
           date1: el1.tdate,
           time1: new Date(el1.tdate).toLocaleTimeString(),
           formatedmonth: new Date(el1.tdate).toLocaleString('default', {
@@ -206,10 +185,11 @@ class Recentactivity extends Component {
         console.log(arrayofrecentactivitiesdata1);
 
         const arrayofrecentactivitiesdata2 = data2.map((el2) => ({
-          paid: el2.usersname,
-          gpname: el2.gpname,
+          paid: el2.payedBy.username,
+          gpname: null,
           descp: el2.tdescription,
-          amnt: symbolvalue + numeral(el2.tamount).format('0,0.00'),
+          amnt:
+            symbolvalue + numeral(el2.tamount.$numberDecimal).format('0,0.00'),
           date1: el2.tdate,
           time1: new Date(el2.tdate).toLocaleTimeString(),
           formatedmonth: new Date(el2.tdate).toLocaleString('default', {
@@ -253,10 +233,10 @@ class Recentactivity extends Component {
     if (!cookie.load('cookie')) {
       redirectVar = <Redirect to="/" />;
     }
-    const currusername = sessionStorage.getItem('username');
+    const { errors, username1 } = this.props;
+    const currusername = username1;
     const {
       recent,
-      userid,
       groupslist,
       gpselectoptions,
       selectedvalue,
@@ -264,7 +244,6 @@ class Recentactivity extends Component {
     } = this.state;
     console.log(
       recent,
-      userid,
       groupslist,
       gpselectoptions,
       selectedvalue,
@@ -392,8 +371,7 @@ class Recentactivity extends Component {
                             <p>
                               {JSON.stringify(activities.paid) ===
                                 JSON.stringify(currusername) &&
-                                JSON.stringify(activities.gpname) !==
-                                  JSON.stringify('$$$$') && (
+                                activities.gpname !== null && (
                                   <p>
                                     <p>
                                       <b>YOU </b>added a payment of{' '}
@@ -428,8 +406,7 @@ class Recentactivity extends Component {
                               )}
                               {JSON.stringify(activities.paid) ===
                                 JSON.stringify(currusername) &&
-                                JSON.stringify(activities.gpname) ===
-                                  JSON.stringify('$$$$') && (
+                                activities.gpname === null && (
                                   <p>
                                     <b>You {activities.descp}</b>
                                   </p>
@@ -463,6 +440,10 @@ class Recentactivity extends Component {
               <div className="transactions-owe" />
               <div className="transactions-owed" />
             </section>
+            <p className="errmsg" style={{ color: 'maroon' }}>
+              {' '}
+              {errors}{' '}
+            </p>
           </div>
 
           <div className="dashboard-right" />
@@ -471,4 +452,45 @@ class Recentactivity extends Component {
     );
   }
 }
+
+function mapDispatchToProps(dispatch) {
+  return {
+    reset1: () => dispatch(reset()),
+  };
+}
+
+function mapStateToProps(store) {
+  console.log(store);
+  return {
+    username1: store.login.user.username,
+    email1: store.login.user.email,
+    defaultcurrency: store.login.user.currencydef,
+    errors: store.groups.error,
+    iscreateSuccess: store.groups.createSuccess,
+    usergroups: store.groups.groups,
+  };
+}
+
+const Recentactivity = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Recentactivitycl);
+
+Recentactivitycl.propTypes = {
+  reset1: Proptypes.func,
+  errors: Proptypes.string,
+  username1: Proptypes.string,
+  email1: Proptypes.string,
+  defaultcurrency: Proptypes.string,
+};
+
+Recentactivitycl.defaultProps = {
+  // profilepicstore: '',
+  reset1: () => {},
+  errors: '',
+  username1: '',
+  email1: '',
+  defaultcurrency: '',
+};
+
 export default Recentactivity;

@@ -1,24 +1,30 @@
 import React, { Component } from 'react';
+
 import axios from 'axios';
 import cookie from 'react-cookies';
 import { Redirect } from 'react-router';
 // import { Link } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 import { Modal, Form, Image } from 'react-bootstrap';
+import { connect } from 'react-redux';
+import Proptypes from 'prop-types';
 import { isEmpty } from 'lodash';
 import numeral from 'numeral';
+// import Expand from 'react-expand-animated';
+import backendServer from '../../webConfig';
 import Sidebarcomp from '../navbar/sidebar';
 import Navheader from '../navbar/navbar';
+import Groupcomments from './groupcomment';
+import { reset } from '../../actions/creategroupAction';
 import '../navbar/navbar.css';
 import '../dashboard/dashboard.css';
 import './group.css';
 
-class Groupdetails extends Component {
+class Groupdetailscl extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      userid: '',
-      useremail: '',
+      token: localStorage.getItem('token'),
       grpname: '',
       popup: false,
       popup1: false,
@@ -27,6 +33,9 @@ class Groupdetails extends Component {
       activties: [{}],
       individuals: [{}],
       summaries: [{}],
+      comments: [{}],
+      toogleopen: false,
+      comment: '',
       // objofpayees: { payee: '', totalblnc: 0 },
       // arrayofsummaries: [],
       redirecttomygroup: null,
@@ -37,28 +46,39 @@ class Groupdetails extends Component {
     this.amtchangehandler = this.amtchangehandler.bind(this);
     this.addhandler = this.addhandler.bind(this);
     this.leavegrouphandler = this.leavegrouphandler.bind(this);
+    this.removecomment = this.removecomment.bind(this);
+    this.addcomment = this.addcomment.bind(this);
+    this.addcommentChangeHandler = this.addcommentChangeHandler.bind(this);
   }
 
   componentWillMount() {
-    const userid1 = sessionStorage.getItem('userid');
-    const useremail1 = sessionStorage.getItem('useremail');
-    const grpname1 = sessionStorage.getItem('groupname');
+    // eslint-disable-next-line react/prop-types
+    const { location } = this.props;
+    // eslint-disable-next-line react/prop-types
+    console.log(location.state.gName);
+    console.log(this.props);
+    // eslint-disable-next-line react/prop-types
+    const grpname1 = location.state.gName;
     const activities1 = this.getgrpexpenses(grpname1);
     const individuals1 = this.getsummaryexpenses(grpname1);
+    const comments1 = this.getcomments(grpname1);
     this.setState({
-      userid: userid1,
-      useremail: useremail1,
       grpname: grpname1,
       activties: activities1,
       individuals: individuals1,
+      comments: comments1,
     });
+    const { reset1 } = this.props;
+    reset1();
   }
 
   // function to get grp expenses
   getgrpexpenses = (gpname) => {
+    const { token } = this.state;
     axios
-      .get(`http://localhost:3001/getgrpexpenses/${gpname}`, {
+      .get(`${backendServer}/getgrpexpenses/${gpname}`, {
         headers: {
+          Authorization: `Bearer ${token}`,
           'content-type': 'application/json',
         },
       })
@@ -66,17 +86,18 @@ class Groupdetails extends Component {
         console.log(response.data);
         console.log(typeof response.data);
         const { data } = response;
-        const defaultcurr = sessionStorage.getItem('defaultcurrency');
-        console.log(defaultcurr);
+        const { defaultcurrency } = this.props;
         const regExp = /\(([^)]+)\)/;
-        const getvalue = regExp.exec(defaultcurr);
+        const getvalue = regExp.exec(defaultcurrency);
         const symbolvalue = getvalue[1];
         const arrayofactivities = data.map((el) => ({
-          value: el.id,
+          // eslint-disable-next-line no-underscore-dangle
+          value: el._id,
           expdate: el.tdate,
           descp: el.tdescription,
-          paid: el.usersname,
-          amnt: symbolvalue + numeral(el.tamount).format('0,0.00'),
+          paid: el.payedBy.username,
+          amnt:
+            symbolvalue + numeral(el.tamount.$numberDecimal).format('0,0.00'),
           formatedmonth: new Date(el.tdate).toLocaleString('default', {
             month: 'short',
           }),
@@ -90,11 +111,29 @@ class Groupdetails extends Component {
       .catch((err) => console.log(err));
   };
 
+  getcomments = (gpname) => {
+    const { token, comments } = this.state;
+    axios
+      .get(`${backendServer}/getcomments/${gpname}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'content-type': 'application/json',
+        },
+      })
+      .then((response) => {
+        console.log(response.data);
+        console.log(comments);
+      })
+      .catch((err) => console.log(err));
+  };
+
   // function to get summary expenses
   getsummaryexpenses = (gpname) => {
+    const { token } = this.state;
     axios
-      .get(`http://localhost:3001/getsummaryexpenses/${gpname}`, {
+      .get(`${backendServer}/getsummaryexpenses/${gpname}`, {
         headers: {
+          Authorization: `Bearer ${token}`,
           'content-type': 'application/json',
         },
       })
@@ -103,20 +142,25 @@ class Groupdetails extends Component {
         console.log(typeof response.data);
         const { data } = response;
         // const { summaries } = this.state;
-        const defaultcurr = sessionStorage.getItem('defaultcurrency');
-        console.log(defaultcurr);
+        const { defaultcurrency } = this.props;
+        console.log(defaultcurrency);
         const regExp = /\(([^)]+)\)/;
-        const getvalue = regExp.exec(defaultcurr);
+        const getvalue = regExp.exec(defaultcurrency);
         const symbolvalue = getvalue[1];
         const arrayofindividuals = data.map((el) => ({
-          id: el.id,
-          payer: el.payer,
-          payee: el.payee,
-          payername: el.payer_name,
-          payeename: el.payee_name,
+          // eslint-disable-next-line no-underscore-dangle
+          id: el._id,
+          // eslint-disable-next-line no-underscore-dangle
+          payer: el.payeremail,
+          // eslint-disable-next-line no-underscore-dangle
+          payee: el.payeeemail,
+          payername: el.payer,
+          payeename: el.payee,
           balance: el.balance,
           formatedbalance: symbolvalue + numeral(el.balance).format('0,0.00'),
         }));
+
+        console.log(arrayofindividuals);
 
         let x;
         const payeeperson = [];
@@ -130,6 +174,7 @@ class Groupdetails extends Component {
               (el) => el === arrayofindividuals[i].payee
             );
           }
+          console.log(x);
 
           if (x === -1) {
             payeeperson.push(arrayofindividuals[i].payee);
@@ -139,6 +184,10 @@ class Groupdetails extends Component {
             payeebalance[x] += arrayofindividuals[i].balance;
           }
         }
+        console.log(payeename);
+        console.log(payeeperson);
+        console.log(payeebalance);
+
         const pp = Object.keys(payeeperson);
         const arrayofsummaries = pp.map((indx) => ({
           payee: payeename[indx],
@@ -167,7 +216,8 @@ class Groupdetails extends Component {
 
   showHandler1 = () => {
     const { summaries } = this.state;
-    const currentusrname = sessionStorage.getItem('username');
+    const { username1 } = this.props;
+    const currentusrname = username1;
     for (let i = 0; i < summaries.length; i += 1) {
       if (
         currentusrname === summaries[i].payee &&
@@ -208,16 +258,20 @@ class Groupdetails extends Component {
     const amountvalue = amt;
     this.setState({ popup: false, description: '', amount: 0.0 });
     const { grpname } = this.state;
-    const { useremail } = this.state;
+    const { token } = this.state;
     const bill = {
       descript,
       amountvalue,
-      useremail,
       grpname,
     };
     console.log(bill);
     axios
-      .post('http://localhost:3001/addabill', bill)
+      .post(`${backendServer}/addabill`, bill, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'content-type': 'application/json',
+        },
+      })
       .then((response) => {
         console.log('Status Code : ', response.status);
         console.log('response ', response.data);
@@ -239,15 +293,18 @@ class Groupdetails extends Component {
   leavegrouphandler = (e) => {
     e.preventDefault();
     this.setState({ popup: false });
-    const { useremail, grpname, userid } = this.state;
+    const { grpname, token } = this.state;
     const leavegrp = {
-      userid,
-      useremail,
       grpname,
     };
     console.log(leavegrp);
     axios
-      .post('http://localhost:3001/leavegroup', leavegrp)
+      .post(`${backendServer}/leavegroup`, leavegrp, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'content-type': 'application/json',
+        },
+      })
       .then((response) => {
         console.log('Status Code : ', response.status);
         console.log('response ', response.data);
@@ -268,6 +325,55 @@ class Groupdetails extends Component {
       });
   };
 
+  toggle = () => {
+    this.setState((prevState) => ({ toogleopen: !prevState.toogleopen }));
+  };
+
+  addcommentChangeHandler = (e) => {
+    this.setState({
+      comment: e.target.value,
+    });
+  };
+
+  addcomment = (transctionid, com) => {
+    // e.preventDefault();
+    const trncid = transctionid;
+    const { token } = this.state;
+    console.log(trncid);
+    const data = {
+      trsncid: trncid,
+      comment: com,
+    };
+    axios
+      .post(`${backendServer}/addcomment`, data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'content-type': 'application/json',
+        },
+      })
+      .then((response) => {
+        console.log('Status Code : ', response.status);
+        console.log('response ', response.data);
+        if (response.status === 200) {
+          console.log(response.data);
+        } else {
+          console.log(response.data);
+          alert(response.data);
+        }
+      })
+      .catch((err) => {
+        console.log(err.response.data);
+        alert(err.response.data);
+      });
+  };
+
+  removecomment = (id) => {
+    const { comment } = this.state;
+    this.setState({
+      comment: comment.filter((s) => s.gmemail !== id.gmemail),
+    });
+  };
+
   render() {
     let redirectVar = null;
     if (!cookie.load('cookie')) {
@@ -279,9 +385,12 @@ class Groupdetails extends Component {
       individuals,
       summaries,
       redirecttomygroup,
+      comment,
     } = this.state;
     const { popup, popup1 } = this.state;
     const { description, amount } = this.state;
+    const { errors } = this.props;
+    console.log(comment);
     const expensepic = '/Group_photos/expense.png';
     let checkifactivitiesnull = false;
     if (isEmpty(activties)) {
@@ -291,8 +400,8 @@ class Groupdetails extends Component {
     if (isEmpty(individuals)) {
       checkifsummiesnull = true;
     }
-
-    const currusername = sessionStorage.getItem('username');
+    const { username1 } = this.props;
+    const currusername = username1;
     console.log(activties);
     return (
       <div>
@@ -427,12 +536,65 @@ class Groupdetails extends Component {
                                 <div className="Column"> </div>
                                 <div className="Column"> </div>
                                 <div className="Column"> </div>
-                                <div className="Column"> </div>
+
                                 <div className="Column">
                                   <p>{expense.paid} </p>
                                   <h5>{expense.amnt} </h5>
                                 </div>
+
+                                <div className="Column"> </div>
                               </div>
+
+                              <div className="Main">
+                                <div className="BoxToggle">
+                                  <p>Comments</p>
+                                </div>
+                                <div className="ExpandBoxes">
+                                  <div className="BoxExpand">
+                                    {' '}
+                                    <p>Hello</p>
+                                    <p>{expense.paid}</p>
+                                    <div
+                                      className="grpnameemail"
+                                      style={{
+                                        width: '300px',
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                      }}
+                                    >
+                                      <div
+                                        className="grpnameemail"
+                                        style={{
+                                          width: '300px',
+                                        }}
+                                      >
+                                        <Groupcomments
+                                          // eslint-disable-next-line react/jsx-props-no-spreading
+                                          {...this.props}
+                                          addcomment={(val) => {
+                                            this.addcomment(expense.value, val);
+                                          }}
+                                        />
+                                      </div>
+                                      <button
+                                        type="button"
+                                        name="removegm"
+                                        onClick={() => this.removecomment()}
+                                        className="removegm"
+                                        style={{
+                                          'background-color': 'white',
+                                          border: 'none',
+                                          color: '#ff652f',
+                                          'font-weight': 'bolder',
+                                        }}
+                                      >
+                                        X
+                                      </button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
                               <hr
                                 style={{
                                   height: '2px',
@@ -496,9 +658,46 @@ class Groupdetails extends Component {
             ))}
           </div>
         )}
+        <p className="errmsg" style={{ color: 'maroon' }}>
+          {' '}
+          {errors}{' '}
+        </p>
       </div>
     );
   }
 }
+function mapDispatchToProps(dispatch) {
+  return {
+    reset1: () => dispatch(reset()),
+  };
+}
+
+function mapStateToProps(store) {
+  console.log(store);
+  return {
+    username1: store.login.user.username,
+    defaultcurrency: store.login.user.currencydef,
+  };
+}
+
+const Groupdetails = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Groupdetailscl);
+
+Groupdetailscl.propTypes = {
+  reset1: Proptypes.func,
+  username1: Proptypes.string,
+  errors: Proptypes.string,
+  defaultcurrency: Proptypes.string,
+};
+
+Groupdetailscl.defaultProps = {
+  reset1: () => {},
+  defaultcurrency: '',
+  errors: '',
+  username1: '',
+  // gName: '',
+};
 
 export default Groupdetails;

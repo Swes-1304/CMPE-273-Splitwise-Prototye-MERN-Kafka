@@ -1,6 +1,5 @@
 import {
   USER_LOGIN,
-  USER_LOGOUT,
   USER_SIGNUP,
   ERRORS,
   RESET_ERRORS,
@@ -38,12 +37,6 @@ export default function loginReducer(state = initialState, action) {
       return {
         ...state,
         error: action.payload,
-      };
-    case USER_LOGOUT:
-      return {
-        islogged: 'false',
-        user: {},
-        error: null,
       };
     case UPDATE_PROFILE:
       return {

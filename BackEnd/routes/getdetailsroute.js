@@ -11,6 +11,7 @@ const Users = require('../Models/usersModel');
 const Groups = require('../Models/groupsModel');
 const Transactions = require('../Models/transactionModel');
 const Balances = require('../Models/balanceModel');
+const Comments = require('../Models/commentModel');
 var multer = require('multer');
 const router = express.Router();
 //const { applyPassportStrategy } = require('./store/passport');
@@ -125,7 +126,7 @@ router.get(
     const gpname = req.params.gpname;
     console.log(gpname);
     var grpid;
-    await Groups.findOne({ groupname: gpname }, { _id: 1 }, (err, result) => {
+    await Groups.findOne({ groupname: gpname }, { _id: 1 }, async (err, result) => {
       //res.status(200).json({ data: result });
       if (err) {
         res.status(400).send(err);
@@ -133,18 +134,88 @@ router.get(
       grpid = result._id;
       console.log('groups find ');
       console.log(grpid, result);
+      await Transactions.find(
+        { groupid: grpid },
+        { payedBy: 1, tamount: 1, tdate: 1, tdescription: 1, tnotes: 1 }
+      )
+        .populate({ path: 'payedBy' })
+        .sort({ tdate: 'desc' })
+        .exec((err, result) => {
+          if (err) {
+            res.status(400).send(err);
+          }
+          console.log('transactions result');
+          console.log(result);
+          res.status(200).send(result);
+        });
     });
+  }
+);
 
-    await Transactions.find(
-      { groupid: grpid },
-      { payedBy: 1, tamount: 1, tdate: 1, tdescription: 1, tnotes: 1 }
-    ).exec((err, result) => {
+router.get(
+  '/getcomments/:gpname',
+  passport.authenticate('jwt', { session: false }),
+  async (req, res) => {
+    console.log('Inside getgrpexpenses');
+    const gpname = req.params.gpname;
+    console.log(gpname);
+    var grpid;
+    await Groups.findOne({ groupname: gpname }, { _id: 1 }, async (err, result) => {
+      //res.status(200).json({ data: result });
       if (err) {
         res.status(400).send(err);
       }
-      console.log('transactions result');
-      console.log(result);
-      res.status(200).send(result);
+      grpid = result._id;
+      console.log('groups find ');
+      console.log(grpid, result);
+      await Transactions.find(
+        { groupid: grpid },
+        { payedBy: 1, tamount: 1, tdate: 1, tdescription: 1, tnotes: 1 }
+      )
+        .sort({ tdate: 'desc' })
+        .exec((err, result) => {
+          if (err) {
+            res.status(400).send(err);
+          }
+          console.log('transactions result');
+          console.log(result);
+          var commentsarray = [{}];
+          var i;
+          console.log(result.length);
+          for (i = 0; i < result.length; i++) {
+            console.log(i);
+            Comments.find(
+              { trancid: result[i]._id },
+              { commentBy: 1, trancid: 1, commentdate: 1, comment: 1 }
+            )
+              .populate({ path: 'commentBy' })
+              .exec((err, result) => {
+                if (err) {
+                  res.status(400).send(err);
+                }
+                console.log('comments result');
+                console.log(result);
+                commentsarray.push(result);
+              });
+          }
+
+          /* res.write(JSON.stringify(result));
+          setTimeout(function () {
+            res.write(JSON.stringify(commentsarray));
+          }, 200);
+          res.end(); */
+          /* if (i === result.length) {
+            console.log('comments array');
+            console.log(commentsarray);
+            res.status(200).send({ transcations: result, comments: commentsarray });
+          }
+          */
+          setTimeout(function () {
+            console.log('comments array');
+            console.log(commentsarray);
+            res.status(200).send(commentsarray);
+          }, 200);
+        });
     });
   }
 );
@@ -157,44 +228,138 @@ router.get(
     const gpname = req.params.gpname;
     console.log(gpname);
     var grpid;
-    await Groups.findOne({ groupname: gpname }, { _id: 1 }, (err, result) => {
+    await Groups.findOne({ groupname: gpname }, { _id: 1 }, async (err, result) => {
       //res.status(200).json({ data: result });
       if (err) {
         res.status(400).send(err);
       }
       grpid = result._id;
       console.log('groups find ');
-      console.log(grpid, result);
+      console.log(grpid);
+      await Balances.find(
+        { groupid: grpid, payeeInvite: 1, payerInvite: 1 },
+        { payer: 1, payee: 1, balance: 1, settled: 1 }
+      )
+        .populate([{ path: 'payer' }, { path: 'payee' }, { path: 'groupid' }])
+        .exec((err, result) => {
+          if (err) {
+            res.status(400).send(err);
+          }
+          console.log('balances result');
+          console.log(result);
+          const arrayofsummaryexpenses = result.map((el) => ({
+            payer: el.payer.username,
+            payeremail: el.payer.email,
+            payeeemail: el.payee.email,
+            payee: el.payee.username,
+            groupname: el.groupid.groupname,
+            balance: JSON.parse(el.balance.toString()),
+          }));
+          console.log('arrayofsummaryexpenses', arrayofsummaryexpenses);
+
+          res.status(200).send(arrayofsummaryexpenses);
+        });
     });
-    console.log('outside find');
-    console.log(grpid);
-    //grpid_manuysl = '6074f4b110c68038c55955bd';
-    await Balances.find(
-      { groupid: grpid, payeeInvite: 1, payerInvite: 1 },
-      { payer: 1, payee: 1, balance: 1, settled: 1 }
-    )
-      .populate([{ path: 'payer' }, { path: 'payee' }])
-      .exec((err, result) => {
-        if (err) {
-          res.status(400).send(err);
-        }
-        console.log('balances result');
-        console.log(result);
-        res.status(200).send(result);
-      });
   }
 );
 
 router.get(
-  '/getrecentacitvities/:userid',
+  '/gettotalbalances',
+  passport.authenticate('jwt', { session: false }),
+  async (req, res) => {
+    console.log(' inside gettotalbalances');
+    const _id = req.user._id;
+    console.log(_id);
+
+    await Balances.find(
+      { payer: _id, payeeInvite: 1, payerInvite: 1, balance: { $ne: 0 } },
+      { balance: 1, groupid: 1, _id: 0 }
+    )
+      .populate([{ path: 'payer' }, { path: 'payee' }, { path: 'groupid' }])
+      .exec(async (err, result) => {
+        if (err) {
+          res.status(400).send(err);
+        }
+        const arraytotals = result.map((el) => ({
+          balance: JSON.parse(el.balance.toString()),
+        }));
+        console.log(arraytotals);
+
+        var youareowed = 0;
+
+        for (let i = 0; i < arraytotals.length; i++) {
+          youareowed = youareowed + arraytotals[i].balance;
+        }
+        console.log('you are owed ', youareowed);
+
+        const arrayofyouareowed = result.map((el) => ({
+          payer: el.payer.username,
+          payee: el.payee.username,
+          payeremail: el.payer.email,
+          payeeemail: el.payee.email,
+          groupname: el.groupid.groupname,
+          balance: JSON.parse(el.balance.toString()),
+        }));
+        console.log('arrayofyouareowed', arrayofyouareowed);
+
+        await Balances.find(
+          { payee: _id, payeeInvite: 1, payerInvite: 1, balance: { $ne: 0 } },
+          { balance: 1, groupid: 1, _id: 0 }
+        )
+          .populate([{ path: 'payer' }, { path: 'payee' }, { path: 'groupid' }])
+          .exec(async (err, result) => {
+            if (err) {
+              res.status(400).send(err);
+            }
+            const arraytotalsowed = result.map((el) => ({
+              balance: JSON.parse(el.balance.toString()),
+            }));
+            console.log(arraytotals);
+
+            var youowe = 0;
+
+            for (let i = 0; i < arraytotalsowed.length; i++) {
+              youowe = youowe + arraytotalsowed[i].balance;
+            }
+            console.log('you owe ', youowe);
+            const arrayofyouowe = result.map((el) => ({
+              payer: el.payer.username,
+              payee: el.payee.username,
+              payeremail: el.payer.email,
+              payeeemail: el.payee.email,
+              groupname: el.groupid.groupname,
+              balance: JSON.parse(el.balance.toString()),
+            }));
+            console.log('arrayofyouowe', arrayofyouowe);
+
+            const total = youareowed - youowe;
+            console.log('total', total);
+
+            res.status(200).send([
+              {
+                total: total,
+                totalyouareowed: youareowed,
+                totalyouowe: youowe,
+                indiyouareowed: arrayofyouareowed,
+                indiyouowe: arrayofyouowe,
+              },
+            ]);
+          });
+      });
+
+    //res.status(200).send(transcationsarray);
+  }
+);
+
+router.get(
+  '/getrecentacitvities',
   passport.authenticate('jwt', { session: false }),
   async (req, res) => {
     console.log(' inside getrecentacitvities');
-    const _id = req.params.userid;
-    console.log(req.headers);
+    const _id = req.user._id;
     console.log(_id);
     var groupspartof = [];
-    await Users.find({ _id: _id }, { groups: 1, _id: 0 }, (err, result) => {
+    await Users.find({ _id: _id }, { groups: 1, _id: 0 }, async (err, result) => {
       //res.status(200).json({ data: result });
       if (err) {
         res.status(400).send(err);
@@ -206,54 +371,63 @@ router.get(
       }
       console.log('users groups find ');
       console.log(groupspartof);
-    });
+      var transcationsarray = [];
 
-    console.log('outside users groups find ');
-    console.log(groupspartof);
+      for (let j = 0; j < groupspartof.length; j++) {
+        await Transactions.find(
+          { groupid: groupspartof[j] },
+          { payedBy: 1, groupid: 1, tamount: 1, tdate: 1, tdescription: 1 }
+        )
+          .populate([{ path: 'payedBy' }, { path: 'groupid' }])
+          .exec((err, result) => {
+            if (err) {
+              res.status(400).send(err);
+            }
+            console.log('transactions result');
+            console.log(result);
+            transcationsarray.push(result);
+            console.log('transactions array');
+            console.log(transcationsarray);
+          });
+      }
 
-    var transcationsarray = [];
-
-    for (let j = 0; j < groupspartof.length; j++) {
       await Transactions.find(
-        { groupid: groupspartof[j] },
-
-        { payedBy: 1, groupid: 1, tamount: 1, tdate: 1, tdescription: 1 }
+        { payedBy: _id, groupid: '000000000000000000000000' },
+        { payedBy: 1, groupid: 1, tamount: 1, tdate: 1, tdescription: 1, tnotes: 1 }
       )
         .populate([{ path: 'payedBy' }, { path: 'groupid' }])
-        .exec((err, result) => {
+        .exec(async (err, result) => {
           if (err) {
             res.status(400).send(err);
           }
-          console.log('transactions result');
-          console.log(result);
+          console.log('settleup result');
           transcationsarray.push(result);
-          console.log('transactions array');
-          console.log(transcationsarray);
+          res.status(200).send(transcationsarray);
         });
-    }
+      // console.log('completetrancarray', completetrancarray);
+    });
 
-    await Transactions.find(
-      { payedBy: _id, groupid: '000000000000000000000000' },
-      { payedBy: 1, groupid: 1, tamount: 1, tdate: 1, tdescription: 1 }
-    )
-      .populate([{ path: 'payedBy' }, { path: 'groupid' }])
-      .exec((err, result) => {
-        if (err) {
-          res.status(400).send(err);
-        }
-        console.log('settleup result');
-        console.log(result);
-        transcationsarray.push(result);
-        console.log('transactions array');
-        console.log(transcationsarray);
-        console.log('outside for loop transactions array');
-        console.log(transcationsarray);
-        res.status(200).send(transcationsarray);
-      });
-    //console.log('outisde transactions array');
-    // console.log(transcationsarray);
+    // res.status(200).send(transcationsarray);
+  }
+);
 
-    //res.status(200).send(transcationsarray);
+router.get(
+  '/getcomments/:transaction',
+  passport.authenticate('jwt', { session: false }),
+  async (req, res) => {
+    console.log('Inside getcomments');
+    const transaction = req.params.trasnca_id;
+    console.log(transaction);
+    var grpid;
+    await Comments.find({ trancid: transaction }, async (err, result) => {
+      //res.status(200).json({ data: result });
+      if (err) {
+        res.status(400).send(err);
+      }
+
+      console.log('result', result);
+      res.status(200).send(result);
+    });
   }
 );
 

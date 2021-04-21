@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const Users = require('../Models/usersModel');
 const Groups = require('../Models/groupsModel');
+const Comments = require('../Models/commentModel');
 
 var transactionSchema = new Schema(
   {
@@ -15,23 +16,16 @@ var transactionSchema = new Schema(
       ref: Groups,
       required: true,
     },
-    tamount: { type: Number, required: true, default: 0 },
+    tamount: { type: mongoose.Decimal128, required: true, default: 0 },
     tdate: { type: Number, required: true, default: Date.now },
     tdescription: { type: String, required: true },
-    tnotes: {
-      user: {
+    tnotes: [
+      {
         type: mongoose.Schema.Types.ObjectId,
-        ref: Users,
+        ref: Comments,
+        required: false,
       },
-      notedate: {
-        type: Number,
-        default: Date.now,
-      },
-      note: {
-        type: String,
-      },
-      required: false,
-    },
+    ],
   },
   {
     versionKey: false,

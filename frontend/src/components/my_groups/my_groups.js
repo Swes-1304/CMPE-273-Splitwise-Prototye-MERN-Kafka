@@ -49,6 +49,7 @@ class Mygroupscl extends Component {
 
   componentWillReceiveProps(nextProps) {
     const { groupslist } = this.state;
+    console.log('props', this.props);
     if (nextProps.groups !== groupslist) {
       this.setState({ groupslist: nextProps.groups });
       const arrayforselect = nextProps.groups.map((el) => ({
@@ -158,8 +159,9 @@ class Mygroupscl extends Component {
 
   gotogrouppage = (groupname, e) => {
     e.preventDefault();
-    sessionStorage.setItem('groupname', groupname);
-    const redirectVar1 = <Redirect to="/group" />;
+    const redirectVar1 = (
+      <Redirect to={{ pathname: '/group', state: { gName: groupname } }} />
+    );
     this.setState({ redirecttopage: redirectVar1 });
   };
 

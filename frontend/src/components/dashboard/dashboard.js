@@ -4,29 +4,27 @@ import axios from 'axios';
 import { Redirect } from 'react-router';
 import { Link } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
-import numeral from 'numeral';
+// import numeral from 'numeral';
 import { Modal, Form } from 'react-bootstrap';
 import { isEmpty } from 'lodash';
 import Select from 'react-select';
+import { connect } from 'react-redux';
+import Proptypes from 'prop-types';
+import { totalBalances, reset } from '../../actions/dashboardAction';
+import backendServer from '../../webConfig';
 import Navheader from '../navbar/navbar';
 import Sidebarcomp from '../navbar/sidebar';
 import '../navbar/navbar.css';
 import './dashboard.css';
 
-class Dashboard extends Component {
+class Dashboardcl extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      userid: '',
-      useremail: '',
+      token: localStorage.getItem('token'),
       popup: false,
       settleupwith: {},
-      totalsummary: [],
-      payeebalances: [],
-      payerbalances: [],
-      totalpayeeuser: [],
-      totalpayeruser: [],
-      settleuplist: [],
+      settleupliststate: [],
     };
     this.settleuphandler = this.settleuphandler.bind(this);
     this.settleupchnagehandler = this.settleupchnagehandler.bind(this);
@@ -34,21 +32,241 @@ class Dashboard extends Component {
 
   // get the total balances
   componentWillMount() {
-    const userid1 = sessionStorage.getItem('userid');
-    const useremail1 = sessionStorage.getItem('useremail');
-    this.gettotalbalances(userid1);
+    console.log(' inside will mount !!');
+    this.gettotalbalances();
+    const { reset1, settleuplist } = this.props;
+    reset1();
+
     this.setState({
-      userid: userid1,
-      useremail: useremail1,
+      settleupliststate: settleuplist,
     });
   }
+  /* 
+  componentWillReceiveProps(nextProps) {
+    console.log('props', this.props);
+    const { balances } = this.props;
+    if (balances && nextProps.balances !== balances) {
+      const { username1, email1, defaultcurrency } = this.props;
+      const regExp = /\(([^)]+)\)/;
+      const getvalue = regExp.exec(defaultcurrency);
+      const symbolvalue = getvalue[1];
+      const arraytotalsummary = nextProps.balances.map((el) => ({
+        totalblc: symbolvalue + numeral(el.total).format('0,0.00'),
+        youowe: symbolvalue + numeral(el.totalyouowe).format('0,0.00'),
+        youareowed: symbolvalue + numeral(el.totalyouareowed).format('0,0.00'),
+      }));
+
+      console.log(arraytotalsummary);
+      this.setState({
+        totalsummary: arraytotalsummary,
+      });
+
+      console.log(balances.indiyouareowed);
+      const arrayindisummariesyouareowed = nextProps.balances[0].indiyouareowed.map(
+        (el) => ({
+          payer1: el.payer,
+          payee1: el.payee,
+          payer1email: el.payeremail,
+          payee1email: el.payeeemail,
+          indiamt1: el.balance,
+          grpname1: el.groupname,
+          formatindiamt1: symbolvalue + numeral(el.balance).format('0,0.00'),
+        })
+      );
+      this.setState({
+        payerbalances: [...arrayindisummariesyouareowed],
+      });
+      // eslint-disable-next-line react/destructuring-assignment
+      console.log(this.state.payerbalances);
+
+      const arrayindisummariesyouowe = nextProps.balances[0].indiyouowe.map(
+        (el) => ({
+          payer: el.payer,
+          payee: el.payee,
+          payeremail: el.payeremail,
+          payeeemail: el.payeeemail,
+          indiamt: el.balance,
+          grpname: el.groupname,
+          formatindiamt: symbolvalue + numeral(el.balance).format('0,0.00'),
+        })
+      );
+      this.setState({
+        payeebalances: [...arrayindisummariesyouowe],
+      });
+
+      // eslint-disable-next-line react/destructuring-assignment
+      console.log(this.state.payeebalances);
+
+      console.log(arrayindisummariesyouareowed, arrayindisummariesyouowe);
+
+      // total payee for the logged in user
+      const totalpayeename = [];
+      const totalpayername = [];
+      const totalamaount = [];
+
+      // total payer for the logged in user
+      const totalpayeename1 = [];
+      const totalpayername1 = [];
+      const totalamaount1 = [];
+
+      const settleupemaillist = [];
+      const settleupnamelist = [];
+
+      let x;
+      let y;
+      for (let i = 0; i < arrayindisummariesyouareowed.length; i += 1) {
+        x = -1;
+        if (
+          username1 === arrayindisummariesyouareowed[i].payer1 &&
+          arrayindisummariesyouareowed[i].indiamt1 !== 0
+        ) {
+          if (!isEmpty(totalpayeename1)) {
+            x = totalpayeename1.findIndex(
+              (el) => el === arrayindisummariesyouareowed[i].payee1
+            );
+          }
+          if (x > -1) {
+            totalamaount1[x] += arrayindisummariesyouareowed[i].indiamt1;
+          } else {
+            totalpayeename1.push(arrayindisummariesyouareowed[i].payee1);
+            totalamaount1.push(arrayindisummariesyouareowed[i].indiamt1);
+            totalpayername1.push(username1);
+          }
+        }
+      }
+
+      for (let i = 0; i < arrayindisummariesyouowe.length; i += 1) {
+        x = -1;
+        if (
+          username1 === arrayindisummariesyouowe[i].payee &&
+          arrayindisummariesyouowe[i].indiamt !== 0
+        ) {
+          if (!isEmpty(totalpayername)) {
+            x = totalpayername.findIndex(
+              (el) => el === arrayindisummariesyouowe[i].payer
+            );
+          }
+          if (x > -1) {
+            totalamaount[x] += arrayindisummariesyouowe[i].indiamt;
+          } else {
+            totalpayername.push(arrayindisummariesyouowe[i].payer);
+            totalamaount.push(arrayindisummariesyouowe[i].indiamt);
+            totalpayeename.push(username1);
+          }
+        }
+      }
+
+      const payeetotalblnc = Object.keys(totalpayeename);
+      const arrayofpayeetotalblnc = payeetotalblnc.map((indx) => ({
+        payee2: totalpayeename[indx],
+        indiamt2: totalamaount[indx],
+        formatindiamt2:
+          symbolvalue + numeral(totalamaount[indx]).format('0,0.00'),
+        payer2: totalpayername[indx],
+      }));
+      console.log(arrayofpayeetotalblnc);
+      this.setState({
+        totalpayeeuser: [...arrayofpayeetotalblnc],
+      });
+
+      const payertotalblnc = Object.keys(totalpayeename1);
+      const arrayofpayertotalblnc = payertotalblnc.map((indx) => ({
+        payee3: totalpayeename1[indx],
+        indiamt3: totalamaount1[indx],
+        formatindiamt3:
+          symbolvalue + numeral(totalamaount1[indx]).format('0,0.00'),
+        payer3: totalpayername1[indx],
+      }));
+      console.log(arrayofpayertotalblnc);
+      this.setState({
+        totalpayeruser: [...arrayofpayertotalblnc],
+      });
+
+      // list of users for settle up
+      for (let j = 0; j < arrayindisummariesyouareowed.length; j += 1) {
+        y = -1;
+        if (
+          email1 !== arrayindisummariesyouareowed[j].payee1email &&
+          arrayindisummariesyouareowed[j].indiamt1 !== 0
+        ) {
+          if (!isEmpty(settleupemaillist)) {
+            y = settleupemaillist.findIndex(
+              (el) => el === arrayindisummariesyouareowed[j].payee1email
+            );
+          }
+
+          if (y === -1) {
+            settleupnamelist.push(arrayindisummariesyouareowed[j].payee1);
+            settleupemaillist.push(arrayindisummariesyouareowed[j].payee1email);
+          }
+        } else if (
+          JSON.stringify(email1) !==
+            JSON.stringify(arrayindisummariesyouareowed[j].payer1email) &&
+          arrayindisummariesyouareowed[j].indiamt1 !== 0
+        ) {
+          if (!isEmpty(settleupemaillist)) {
+            y = settleupemaillist.findIndex(
+              (el) => el === arrayindisummariesyouareowed[j].payer1email
+            );
+          }
+
+          if (y === -1) {
+            settleupnamelist.push(arrayindisummariesyouareowed[j].payer1);
+            settleupemaillist.push(arrayindisummariesyouareowed[j].payer1email);
+          }
+        }
+      }
+      for (let j = 0; j < arrayindisummariesyouowe.length; j += 1) {
+        y = -1;
+        if (
+          email1 !== arrayindisummariesyouowe[j].payeeemail &&
+          arrayindisummariesyouowe[j].indiamt !== 0
+        ) {
+          if (!isEmpty(settleupemaillist)) {
+            y = settleupemaillist.findIndex(
+              (el) => el === arrayindisummariesyouowe[j].payeeemail
+            );
+          }
+
+          if (y === -1) {
+            settleupnamelist.push(arrayindisummariesyouowe[j].payee);
+            settleupemaillist.push(arrayindisummariesyouowe[j].payeeemail);
+          }
+        } else if (
+          JSON.stringify(email1) !==
+            JSON.stringify(arrayindisummariesyouowe[j].payeremail) &&
+          arrayindisummariesyouowe[j].indiamt1 !== 0
+        ) {
+          if (!isEmpty(settleupemaillist)) {
+            y = settleupemaillist.findIndex(
+              (el) => el === arrayindisummariesyouowe[j].payeremail
+            );
+          }
+
+          if (y === -1) {
+            settleupnamelist.push(arrayindisummariesyouowe[j].payer);
+            settleupemaillist.push(arrayindisummariesyouowe[j].payeremail);
+          }
+        }
+      }
+      const setteluplist = Object.keys(settleupemaillist);
+      const arrayforselect = setteluplist.map((indx) => ({
+        value: settleupemaillist[indx],
+        label: settleupnamelist[indx],
+      }));
+      this.setState({
+        settleuplist: [...arrayforselect],
+      });
+    }
+  }
+  */
 
   showHandler = () => {
     this.setState({ popup: true });
   };
 
   closeHandler = () => {
-    this.setState({ popup: false, settleuplist: [] });
+    this.setState({ popup: false, settleupliststate: [] });
   };
 
   settleupchnagehandler = (e) => {
@@ -60,22 +278,25 @@ class Dashboard extends Component {
   // send data to settle up with an user
   settleuphandler = (settleupwith1, e) => {
     e.preventDefault();
-    this.setState({ popup: false, settleuplist: [], settleupwith: '' });
-    const { settleupwith, userid, useremail } = this.state;
+    this.setState({ popup: false, settleupliststate: [], settleupwith: '' });
+    const { settleupwith, token } = this.state;
     console.log(settleupwith);
     const data = {
       settleupwith,
-      userid,
-      useremail,
     };
     axios
-      .post('http://localhost:3001/settleup', data)
+      .post(`${backendServer}/settleup`, data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'content-type': 'application/json',
+        },
+      })
       .then((response) => {
         console.log('Status Code : ', response.status);
         console.log('response ', response.data);
         if (response.status === 200) {
           console.log(response.data);
-          this.gettotalbalances(userid);
+          this.gettotalbalances();
         } else {
           console.log(response.data);
           alert(response.data);
@@ -88,216 +309,14 @@ class Dashboard extends Component {
   };
 
   // function to get the total balances
-  gettotalbalances = (userid) => {
-    axios
-      .get(`http://localhost:3001/gettotalbalances/${userid}`, {
-        headers: {
-          'content-type': 'application/json',
-        },
-      })
-      .then((response) => {
-        const data = response.data[1];
-        const username = sessionStorage.getItem('username');
-        const useremail = sessionStorage.getItem('useremail');
-        const defaultcurr = sessionStorage.getItem('defaultcurrency');
-        const regExp = /\(([^)]+)\)/;
-        const getvalue = regExp.exec(defaultcurr);
-        const symbolvalue = getvalue[1];
-        const arraytotalsummary = data.map((el) => ({
-          totalblc: symbolvalue + numeral(el.Total_balance).format('0,0.00'),
-          youowe: symbolvalue + numeral(el.You_owe).format('0,0.00'),
-          youareowed: symbolvalue + numeral(el.You_are_owed).format('0,0.00'),
-        }));
-
-        this.setState({
-          totalsummary: arraytotalsummary,
-        });
-
-        const data1 = response.data[0];
-        const arrayindisummaries = data1.map((el) => ({
-          payername: el.payer_username,
-          payeremail: el.payer,
-          payeename: el.payee_username,
-          payeeemail: el.payee,
-          balance: el.balance,
-          grpname: el.gpname,
-        }));
-
-        this.setState({
-          totalsummary: arraytotalsummary,
-        });
-
-        // payee details for the logged in user
-        const payeearr = [];
-        const payeegrouparr = [];
-        const payeebalancearr = [];
-        const payerarr = [];
-
-        // payer details for the logged in user
-        const payeepaysarr = [];
-        const payeepaysbalancearr = [];
-        const payergetsarr = [];
-        const payergrouparr = [];
-
-        // total payee for the logged in user
-        const totalpayeename = [];
-        const totalpayername = [];
-        const totalamaount = [];
-
-        // total payer for the logged in user
-        const totalpayeename1 = [];
-        const totalpayername1 = [];
-        const totalamaount1 = [];
-
-        const settleupemaillist = [];
-        const settleupnamelist = [];
-
-        let x;
-        let y;
-        for (let i = 0; i < arrayindisummaries.length; i += 1) {
-          x = -1;
-          if (
-            username === arrayindisummaries[i].payeename &&
-            arrayindisummaries[i].balance !== 0
-          ) {
-            payeearr.push(username);
-            payeegrouparr.push(arrayindisummaries[i].grpname);
-            payeebalancearr.push(arrayindisummaries[i].balance);
-            payerarr.push(arrayindisummaries[i].payername);
-            if (!isEmpty(totalpayername)) {
-              x = totalpayername.findIndex(
-                (el) => el === arrayindisummaries[i].payername
-              );
-            }
-            if (x > -1) {
-              totalamaount[x] += arrayindisummaries[i].balance;
-            } else {
-              totalpayername.push(arrayindisummaries[i].payername);
-              totalamaount.push(arrayindisummaries[i].balance);
-              totalpayeename.push(username);
-            }
-          } else if (
-            username === arrayindisummaries[i].payername &&
-            arrayindisummaries[i].balance !== 0
-          ) {
-            payeepaysbalancearr.push(arrayindisummaries[i].balance);
-            payeepaysarr.push(arrayindisummaries[i].payeename);
-            payergrouparr.push(arrayindisummaries[i].grpname);
-            payergetsarr.push(username);
-            // x = -1;
-            if (!isEmpty(totalpayeename1)) {
-              x = totalpayeename1.findIndex(
-                (el) => el === arrayindisummaries[i].payeename
-              );
-            }
-            if (x > -1) {
-              totalamaount1[x] += arrayindisummaries[i].balance;
-            } else {
-              totalpayeename1.push(arrayindisummaries[i].payeename);
-              totalamaount1.push(arrayindisummaries[i].balance);
-              totalpayername1.push(username);
-            }
-          }
-        }
-
-        const payeearray = Object.keys(payeearr);
-        const arrayofindipayee = payeearray.map((indx) => ({
-          payee: payeearr[indx],
-          grpname: payeegrouparr[indx],
-          indiamt: payeebalancearr[indx],
-          formatindiamt:
-            symbolvalue + numeral(payeebalancearr[indx]).format('0,0.00'),
-          payer: payerarr[indx],
-        }));
-        console.log(arrayofindipayee);
-        this.setState({
-          payeebalances: [...arrayofindipayee],
-        });
-
-        const payerarray = Object.keys(payergetsarr);
-        const arrayofindipayer = payerarray.map((indx) => ({
-          payee1: payeepaysarr[indx],
-          grpname1: payergrouparr[indx],
-          indiamt1: payeepaysbalancearr[indx],
-          formatindiamt1:
-            symbolvalue + numeral(payeepaysbalancearr[indx]).format('0,0.00'),
-          payer1: payergetsarr[indx],
-        }));
-        console.log(arrayofindipayer);
-        this.setState({
-          payerbalances: [...arrayofindipayer],
-        });
-
-        const payeetotalblnc = Object.keys(totalpayeename);
-        const arrayofpayeetotalblnc = payeetotalblnc.map((indx) => ({
-          payee2: totalpayeename[indx],
-          indiamt2: totalamaount[indx],
-          formatindiamt2:
-            symbolvalue + numeral(totalamaount[indx]).format('0,0.00'),
-          payer2: totalpayername[indx],
-        }));
-        console.log(arrayofpayeetotalblnc);
-        this.setState({
-          totalpayeeuser: [...arrayofpayeetotalblnc],
-        });
-
-        const payertotalblnc = Object.keys(totalpayeename1);
-        const arrayofpayertotalblnc = payertotalblnc.map((indx) => ({
-          payee3: totalpayeename1[indx],
-          indiamt3: totalamaount1[indx],
-          formatindiamt3:
-            symbolvalue + numeral(totalamaount1[indx]).format('0,0.00'),
-          payer3: totalpayername1[indx],
-        }));
-        console.log(arrayofpayertotalblnc);
-        this.setState({
-          totalpayeruser: [...arrayofpayertotalblnc],
-        });
-
-        // list of users for settle up
-        for (let j = 0; j < arrayindisummaries.length; j += 1) {
-          y = -1;
-          if (
-            useremail !== arrayindisummaries[j].payeeemail &&
-            arrayindisummaries[j].balance !== 0
-          ) {
-            if (!isEmpty(settleupemaillist)) {
-              y = settleupemaillist.findIndex(
-                (el) => el === arrayindisummaries[j].payeeemail
-              );
-            }
-
-            if (y === -1) {
-              settleupnamelist.push(arrayindisummaries[j].payeename);
-              settleupemaillist.push(arrayindisummaries[j].payeeemail);
-            }
-          } else if (
-            JSON.stringify(useremail) !==
-              JSON.stringify(arrayindisummaries[j].payeremail) &&
-            arrayindisummaries[j].balance !== 0
-          ) {
-            if (!isEmpty(settleupemaillist)) {
-              y = settleupemaillist.findIndex(
-                (el) => el === arrayindisummaries[j].payeremail
-              );
-            }
-
-            if (y === -1) {
-              settleupnamelist.push(arrayindisummaries[j].payername);
-              settleupemaillist.push(arrayindisummaries[j].payeremail);
-            }
-          }
-        }
-        const setteluplist = Object.keys(settleupemaillist);
-        const arrayforselect = setteluplist.map((indx) => ({
-          value: settleupemaillist[indx],
-          label: settleupnamelist[indx],
-        }));
-        this.setState({
-          settleuplist: [...arrayforselect],
-        });
-      })
-      .catch((err) => console.log(err));
+  gettotalbalances = () => {
+    const { totalBalances1 } = this.props;
+    totalBalances1();
+    /* .then((response) => {
+      console.log(' Inside then ');
+      console.log(response);
+    }); */
+    console.log(' inside totalBalances1!!');
   };
 
   render() {
@@ -305,19 +324,24 @@ class Dashboard extends Component {
     if (!cookie.load('cookie')) {
       redirectVar = <Redirect to="/" />;
     }
+    const { errors } = this.props;
+    const {
+      popup,
+      settleupliststate,
+      settleupwith,
+      userid,
+      useremail,
+    } = this.state;
     const {
       totalsummary,
       payeebalances,
       payerbalances,
       totalpayeeuser,
       totalpayeruser,
-      popup,
       settleuplist,
-      settleupwith,
-      userid,
-      useremail,
-    } = this.state;
-    console.log(userid, useremail);
+    } = this.props;
+
+    console.log(userid, useremail, settleupliststate);
     let checkifyouowenull = false;
     if (isEmpty(totalpayeeuser)) {
       checkifyouowenull = true;
@@ -588,12 +612,65 @@ class Dashboard extends Component {
               </div>
             </section>
           </div>
-
+          <p className="errmsg" style={{ color: 'maroon' }}>
+            {' '}
+            {errors}{' '}
+          </p>
           <div className="dashboard-right" />
         </div>
       </div>
     );
   }
 }
+
+function mapDispatchToProps(dispatch) {
+  return {
+    totalBalances1: () => dispatch(totalBalances()),
+    reset1: () => dispatch(reset()),
+  };
+}
+
+function mapStateToProps(store) {
+  console.log(store);
+  return {
+    username1: store.login.user.username,
+    email1: store.login.user.email,
+    defaultcurrency: store.login.user.currencydef,
+    errors: store.groups.error,
+    balances: store.balance.balances,
+    totalsummary: store.balance.totalsummary,
+    payerbalances: store.balance.payerbalances,
+    payeebalances: store.balance.payeebalances,
+    totalpayeruser: store.balance.totalpayeruser,
+    totalpayeeuser: store.balance.totalpayeeuser,
+    settleuplist: store.balance.settleuplist,
+  };
+}
+
+const Dashboard = connect(mapStateToProps, mapDispatchToProps)(Dashboardcl);
+
+Dashboardcl.propTypes = {
+  reset1: Proptypes.func,
+  errors: Proptypes.string,
+  totalBalances1: Proptypes.func,
+  totalsummary: Proptypes.instanceOf(Array),
+  payerbalances: Proptypes.instanceOf(Array),
+  payeebalances: Proptypes.instanceOf(Array),
+  totalpayeruser: Proptypes.instanceOf(Array),
+  totalpayeeuser: Proptypes.instanceOf(Array),
+  settleuplist: Proptypes.instanceOf(Array),
+};
+
+Dashboardcl.defaultProps = {
+  reset1: () => {},
+  totalBalances1: () => {},
+  errors: '',
+  totalsummary: [],
+  payerbalances: [],
+  payeebalances: [],
+  totalpayeruser: [],
+  totalpayeeuser: [],
+  settleuplist: [],
+};
 
 export default Dashboard;

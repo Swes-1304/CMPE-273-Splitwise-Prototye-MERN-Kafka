@@ -21,6 +21,7 @@ class Navheadercl extends Component {
 
   handleLogout = () => {
     cookie.remove('cookie', { path: '/' });
+    localStorage.clear();
     const { userLogout1 } = this.props;
     userLogout1();
     console.log(' userlogout !');

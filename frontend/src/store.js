@@ -1,6 +1,7 @@
 import { createStore, applyMiddleware, compose } from 'redux';
 import thunk from 'redux-thunk';
-import combineReducers from './reducers/index';
+// eslint-disable-next-line import/no-cycle
+import rootReducer from './reducers/index';
 // import loginReducer from './reducers/loginReducer';
 // import errorReducer from './reducers/errorReducer';
 // import signupReducer from './reducers/signupReducer';
@@ -10,7 +11,7 @@ const initialState = {};
 const middleware = [thunk];
 
 const store = createStore(
-  combineReducers,
+  rootReducer,
   initialState,
   compose(
     applyMiddleware(...middleware),

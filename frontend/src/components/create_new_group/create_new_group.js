@@ -43,6 +43,22 @@ class Createnewgroupcl extends Component {
     this.getuseroptions();
   }
 
+  componentWillReceiveProps(nextProps) {
+    const { iscreateSuccess } = this.props;
+    const { groupname } = this.state;
+    if (nextProps.iscreateSuccess !== iscreateSuccess) {
+      console.log(iscreateSuccess);
+      if (nextProps.iscreateSuccess === 1) {
+        const redirectVar1 = (
+          <Redirect to={{ pathname: '/group', state: { gName: groupname } }} />
+        );
+        this.setState({
+          redirecttogroup: redirectVar1,
+        });
+      }
+    }
+  }
+
   // get the list of all users part of application to be used for the dropdown selection except the current users
   getuseroptions = () => {
     const { token } = this.state;
@@ -181,15 +197,6 @@ class Createnewgroupcl extends Component {
     const { createGroup1 } = this.props;
     createGroup1({ data });
     console.log(' create group  !');
-
-    const { iscreateSuccess } = this.props;
-    console.log(iscreateSuccess);
-    if (iscreateSuccess === 1) {
-      const redirectVar1 = <Redirect to="/group" />;
-      this.setState({
-        redirecttogroup: redirectVar1,
-      });
-    }
 
     this.setState({
       updatedpic: false,

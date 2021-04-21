@@ -23,25 +23,37 @@ class Logincl extends Component {
     this.emailChangeHandler = this.emailChangeHandler.bind(this);
     this.passwordChangeHandler = this.passwordChangeHandler.bind(this);
     this.submitLogin = this.submitLogin.bind(this);
-    this.handleRedirect = this.handleRedirect.bind(this);
+    // this.handleRedirect = this.handleRedirect.bind(this);
   }
 
   componentWillMount() {
     this.setState({
-      // verifyauth: false,
       redirecttohome: null,
     });
     const { reset1 } = this.props;
     reset1();
-
-    // sessionStorage.clear();
   }
 
-  handleRedirect = () => {
+  componentWillReceiveProps(nextProps) {
+    const { isloggedin } = this.props;
+    const { redirecttohome } = this.state;
+    console.log(redirecttohome);
+    if (nextProps.isloggedin !== isloggedin) {
+      console.log(isloggedin);
+      if (nextProps.isloggedin === 'true') {
+        const redirectVar1 = <Redirect to="/dashboard" />;
+        this.setState({
+          redirecttohome: redirectVar1,
+        });
+      }
+    }
+  }
+
+  /* handleRedirect = () => {
     console.log('handle redirect ');
     return <Redirect to="/dashboard" />;
   };
-
+*/
   // username change handler to update state variable with the text entered by the user
   emailChangeHandler = (e) => {
     /* console.log(this.props);
@@ -60,9 +72,9 @@ class Logincl extends Component {
   };
 
   // submit Login handler to send a request to the node backend
-  submitLogin = async (e) => {
+  submitLogin = async () => {
     // prevent page from refresh
-    e.preventDefault();
+    // e.preventDefault();
     const { email, password } = this.state;
     if (email === '') {
       alert('Please enter email address');
@@ -78,6 +90,7 @@ class Logincl extends Component {
       });
       return;
     }
+
     // const { history } = this.props;
     const data = {
       email,
@@ -86,11 +99,6 @@ class Logincl extends Component {
     const { userLogin1 } = this.props;
     userLogin1({ data });
     console.log(' userlogin submit !');
-    const { isloggedin } = this.props;
-    console.log(isloggedin);
-    if (isloggedin === 'true') {
-      this.handleRedirect();
-    }
   };
 
   render() {
@@ -104,7 +112,6 @@ class Logincl extends Component {
     return (
       <div>
         {redirectVar}
-        {redirecttohome}
         <Navheader />
         <div className="container">
           <div className="login-form">
@@ -172,6 +179,7 @@ class Logincl extends Component {
                 {errors}{' '}
               </p>
             </div>
+            {redirecttohome}
           </div>
         </div>
       </div>

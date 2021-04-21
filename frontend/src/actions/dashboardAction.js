@@ -1,16 +1,23 @@
 import axios from 'axios';
-import { USER_LOGIN, USER_LOGOUT, ERRORS, RESET_ERRORS } from './types';
+import { GET_BALANCES, ERRORS, RESET_ERRORS } from './types';
 import backendServer from '../webConfig';
 
-export const userLogin = (loginData) => (dispatch) => {
-  axios.defaults.withCredentials = true;
+export const totalBalances = () => (dispatch) => {
+  const token = localStorage.getItem('token');
+
   axios
-    .post(`${backendServer}/login`, loginData)
+    .get(`${backendServer}/gettotalbalances`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'content-type': 'application/json',
+      },
+    })
     .then((response) => {
+      console.log(' inside action of dashboad response');
       if (response.status === 200) {
-        localStorage.setItem('token', response.data.token);
+        console.log(' inside if actoin ');
         return dispatch({
-          type: USER_LOGIN,
+          type: GET_BALANCES,
           payload: response.data,
         });
       }
@@ -29,13 +36,4 @@ export const userLogin = (loginData) => (dispatch) => {
       return 'error!';
     });
 };
-
-/* export const emailChange = (email) => (dispatch) =>
-  dispatch({
-    type: EMAIL_CHANGE,
-    payload: email,
-  }); */
-
-export const userLogout = () => (dispatch) => dispatch({ type: USER_LOGOUT });
-
 export const reset = () => (dispatch) => dispatch({ type: RESET_ERRORS });

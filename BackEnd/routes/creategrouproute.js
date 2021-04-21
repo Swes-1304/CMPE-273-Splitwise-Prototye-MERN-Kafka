@@ -79,7 +79,7 @@ router.post(
       await createnewgroup(grpname, groupphoto, gpmemesid, _id);
 
       var newgrp;
-      await Groups.findOne({ groupname: grpname }, { _id: 1 }, (err, result) => {
+      await Groups.findOne({ groupname: grpname }, { _id: 1 }, async (err, result) => {
         if (err) {
           return res.json({
             success: false,
@@ -93,98 +93,96 @@ router.post(
         newgrp = result;
 
         console.log(newgrp);
-      });
+        const groupmems = gpmemesid;
+        const newgrpid = newgrp._id;
+        // update the owner details in users model
 
-      const groupmems = gpmemesid;
-      const newgrpid = newgrp._id;
-      // update the owner details in users model
-
-      for (let i = 0; i < groupmems.length; i++) {
-        console.log(i);
-        if (i == 0) {
-          console.log('inside i = 0 ');
-          console.log(_id);
-          Users.findOneAndUpdate(
-            { _id: _id },
-            {
-              $push: {
-                groups: newgrpid,
+        for (let i = 0; i < groupmems.length; i++) {
+          console.log(i);
+          if (i == 0) {
+            console.log('inside i = 0 ');
+            console.log(_id);
+            Users.findOneAndUpdate(
+              { _id: _id },
+              {
+                $push: {
+                  groups: newgrpid,
+                },
               },
-            },
-            { new: true }
-          )
-            .then((user) => {
-              console.log('updated owner');
-            })
-            .catch((err) => {
-              console.log(err);
-              res.status(500).send({ error: err });
-            });
-        } else {
-          Users.findOneAndUpdate(
-            { _id: groupmems[i] },
-            {
-              $push: {
-                groupsInvitedTo: newgrpid,
+              { new: true }
+            )
+              .then((user) => {
+                console.log('updated owner');
+              })
+              .catch((err) => {
+                console.log(err);
+                res.status(500).send({ error: err });
+              });
+          } else {
+            Users.findOneAndUpdate(
+              { _id: groupmems[i] },
+              {
+                $push: {
+                  groupsInvitedTo: newgrpid,
+                },
               },
-            },
-            { new: true }
-          )
-            .then((user) => {
-              console.log('updated invites');
-            })
-            .catch((err) => {
-              console.log(err);
-              res.status(500).send({ error: err });
-            });
-        }
-      }
-
-      arrayofmems = groupmems;
-      for (let i = 0; i < groupmems.length; i++) {
-        for (let j = 0; j < groupmems.length; j++) {
-          if (groupmems[i] !== groupmems[j]) {
-            await createbalances(groupmems[i], groupmems[j], 0, newgrpid);
+              { new: true }
+            )
+              .then((user) => {
+                console.log('updated invites');
+              })
+              .catch((err) => {
+                console.log(err);
+                res.status(500).send({ error: err });
+              });
           }
         }
-      }
 
-      //update payer_invite and payee_invite for owner
+        arrayofmems = groupmems;
+        for (let i = 0; i < groupmems.length; i++) {
+          for (let j = 0; j < groupmems.length; j++) {
+            if (groupmems[i] !== groupmems[j]) {
+              await createbalances(groupmems[i], groupmems[j], 0, newgrpid);
+            }
+          }
+        }
 
-      await Balances.updateMany(
-        { payer: _id, groupid: newgrpid },
-        {
-          $set: {
-            payerInvite: 1,
+        //update payer_invite and payee_invite for owner
+
+        await Balances.updateMany(
+          { payer: _id, groupid: newgrpid },
+          {
+            $set: {
+              payerInvite: 1,
+            },
           },
-        },
-        { multi: true }
-      )
-        .then(() => {
-          console.log('owner payer');
-        })
-        .catch((err) => {
-          console.log(err);
-          res.status(500).send({ error: err });
-        });
-
-      await Balances.updateMany(
-        { payee: _id, groupid: newgrpid },
-        {
-          $set: {
-            payeeInvite: 1,
-          },
-        },
-        { multi: true }
-      )
-        .then(() => {
-          console.log('owner payee');
-        })
-        .catch((err) => {
-          console.log(err);
-          res.status(500).send({ error: err });
-        });
-      res.status(200).send({ groupname: grpname });
+          { multi: true }
+        )
+          .then(async () => {
+            console.log('owner payer');
+            await Balances.updateMany(
+              { payee: _id, groupid: newgrpid },
+              {
+                $set: {
+                  payeeInvite: 1,
+                },
+              },
+              { multi: true }
+            )
+              .then(() => {
+                console.log('owner payee');
+              })
+              .catch((err) => {
+                console.log(err);
+                res.status(500).send({ error: err });
+              });
+          })
+          .catch((err) => {
+            console.log(err);
+            res.status(500).send({ error: err });
+          });
+        res.status(200).send({ groupname: grpname });
+      });
     }
   }
 );
@@ -200,7 +198,7 @@ router.post(
     //const useremail = req.body.useremail;
     const grpname = req.body.currentgrp;
     var accgrp;
-    await Groups.findOne({ groupname: grpname }, { _id: 1 }, (err, result) => {
+    await Groups.findOne({ groupname: grpname }, { _id: 1 }, async (err, result) => {
       if (err) {
         return res.json({
           success: false,
@@ -213,82 +211,79 @@ router.post(
       }
       console.log('inside groupsfind');
       accgrp = result;
+      const accgrpid = accgrp._id;
+      console.log(accgrpid);
+
+      await Users.findOneAndUpdate(
+        { _id: _id },
+        {
+          $push: {
+            groups: accgrpid,
+          },
+          $pull: {
+            groupsInvitedTo: accgrpid,
+          },
+        },
+        { new: true }
+      )
+        .then(async (user) => {
+          console.log('updated user');
+          await Groups.findOneAndUpdate(
+            { _id: accgrpid },
+            {
+              $push: {
+                membersinviteaccepted: _id,
+              },
+            },
+            { new: true }
+          )
+            .then(async (user) => {
+              console.log('updated groups');
+              await Balances.updateMany(
+                { payer: _id, groupid: accgrpid },
+                {
+                  $set: {
+                    payerInvite: 1,
+                  },
+                },
+                { multi: true }
+              )
+                .then(async () => {
+                  console.log(' payer update');
+                  await Balances.updateMany(
+                    { payee: _id, groupid: accgrpid },
+                    {
+                      $set: {
+                        payeeInvite: 1,
+                      },
+                    },
+                    { multi: true }
+                  )
+                    .then(() => {
+                      console.log(' payee update');
+                    })
+                    .catch((err) => {
+                      console.log(err);
+                      res.status(500).send({ error: err });
+                      return;
+                    });
+                })
+                .catch((err) => {
+                  console.log(err);
+                  res.status(500).send({ error: err });
+                });
+            })
+            .catch((err) => {
+              console.log(err);
+              res.status(500).send({ error: err });
+            });
+        })
+        .catch((err) => {
+          console.log(err);
+          res.status(500).send({ error: err });
+        });
     });
 
-    const accgrpid = accgrp._id;
-    console.log(accgrpid);
-
-    await Users.findOneAndUpdate(
-      { _id: _id },
-      {
-        $push: {
-          groups: accgrpid,
-        },
-        $pull: {
-          groupsInvitedTo: accgrpid,
-        },
-      },
-      { new: true }
-    )
-      .then((user) => {
-        console.log('updated user');
-      })
-      .catch((err) => {
-        console.log(err);
-        res.status(500).send({ error: err });
-      });
-
-    await Groups.findOneAndUpdate(
-      { _id: accgrpid },
-      {
-        $push: {
-          membersinviteaccepted: _id,
-        },
-      },
-      { new: true }
-    )
-      .then((user) => {
-        console.log('updated groups');
-      })
-      .catch((err) => {
-        console.log(err);
-        res.status(500).send({ error: err });
-      });
-
-    await Balances.updateMany(
-      { payer: _id, groupid: accgrpid },
-      {
-        $set: {
-          payerInvite: 1,
-        },
-      },
-      { multi: true }
-    )
-      .then(() => {
-        console.log(' payer update');
-      })
-      .catch((err) => {
-        console.log(err);
-        res.status(500).send({ error: err });
-      });
-
-    await Balances.updateMany(
-      { payee: _id, groupid: accgrpid },
-      {
-        $set: {
-          payeeInvite: 1,
-        },
-      },
-      { multi: true }
-    )
-      .then(() => {
-        console.log(' payee update');
-      })
-      .catch((err) => {
-        console.log(err);
-        res.status(500).send({ error: err });
-        return;
-      });
     res.status(200).send('accepted');
   }
 );
@@ -304,7 +299,7 @@ router.post(
     //const useremail = req.body.useremail;
     const grpname = req.body.currentgrp;
     var dnygrp;
-    await Groups.findOne({ groupname: grpname }, { _id: 1 }, (err, result) => {
+    await Groups.findOne({ groupname: grpname }, { _id: 1 }, async (err, result) => {
       if (err) {
         return res.json({
           success: false,
@@ -316,59 +311,57 @@ router.post(
         });
       }
       dnygrp = result;
+      const dnygrpid = dnygrp._id;
+      console.log(dnygrpid);
+
+      await Groups.findOneAndUpdate(
+        { _id: dnygrpid },
+        {
+          $pull: {
+            members: _id,
+          },
+        },
+        { new: true }
+      )
+        .then(async (user) => {
+          console.log('updated groups');
+          await Users.findOneAndUpdate(
+            { _id: _id },
+            {
+              $pull: {
+                groupsInvitedTo: dnygrpid,
+              },
+            },
+            { new: true }
+          )
+            .then(async (user) => {
+              console.log('updated user');
+              await Balances.deleteMany({
+                $or: [
+                  { payer: _id, groupid: dnygrpid },
+                  { payee: _id, groupid: dnygrpid },
+                ],
+              })
+                .then(() => {
+                  console.log(' updated balances');
+                })
+                .catch((err) => {
+                  console.log(err);
+                  res.status(500).send({ error: err });
+                  return;
+                });
+            })
+            .catch((err) => {
+              console.log(err);
+              res.status(500).send({ error: err });
+            });
+        })
+        .catch((err) => {
+          console.log(err);
+          res.status(500).send({ error: err });
+        });
     });
 
-    const dnygrpid = dnygrp._id;
-    console.log(dnygrpid);
-
-    await Groups.findOneAndUpdate(
-      { _id: dnygrpid },
-      {
-        $pull: {
-          members: _id,
-        },
-      },
-      { new: true }
-    )
-      .then((user) => {
-        console.log('updated groups');
-      })
-      .catch((err) => {
-        console.log(err);
-        res.status(500).send({ error: err });
-      });
-
-    await Users.findOneAndUpdate(
-      { _id: _id },
-      {
-        $pull: {
-          groupsInvitedTo: dnygrpid,
-        },
-      },
-      { new: true }
-    )
-      .then((user) => {
-        console.log('updated user');
-      })
-      .catch((err) => {
-        console.log(err);
-        res.status(500).send({ error: err });
-      });
-
-    await Balances.deleteMany({
-      $or: [
-        { payer: _id, groupid: dnygrpid },
-        { payee: _id, groupid: dnygrpid },
-      ],
-    })
-      .then(() => {
-        console.log(' updated balances');
-      })
-      .catch((err) => {
-        console.log(err);
-        res.status(500).send({ error: err });
-        return;
-      });
     res.status(200).send('denied');
   }
 );
@@ -377,11 +370,11 @@ router.post('/leavegroup', passport.authenticate('jwt', { session: false }), asy
   console.log('Inside  leavegroup');
   console.log(req.body);
 
-  const _id = req.body.userid;
+  const _id = req.user._id;
   //const useremail = req.body.useremail;
-  const grpname = req.body.currentgrp;
+  const grpname = req.body.grpname;
   var lvgrp;
-  await Groups.findOne({ groupname: grpname }, { _id: 1 }, (err, result) => {
+  await Groups.findOne({ groupname: grpname }, { _id: 1 }, async (err, result) => {
     if (err) {
       return res.json({
         success: false,
@@ -392,59 +385,58 @@ router.post('/leavegroup', passport.authenticate('jwt', { session: false }), asy
         },
       });
     }
+    console.log(' result ', result);
     lvgrp = result;
+    const lvgrpid = lvgrp._id;
+    console.log(lvgrpid);
+
+    await Groups.findOneAndUpdate(
+      { _id: lvgrpid },
+      {
+        $pull: {
+          members: _id,
+        },
+      },
+      { new: true }
+    )
+      .then(async (user) => {
+        console.log('updated groups');
+        await Users.findOneAndUpdate(
+          { _id: _id },
+          {
+            $pull: {
+              groups: lvgrpid,
+            },
+          },
+          { new: true }
+        )
+          .then(async (user) => {
+            console.log('updated user');
+            await Balances.deleteMany({
+              $or: [
+                { payer: _id, groupid: lvgrpid },
+                { payee: _id, groupid: lvgrpid },
+              ],
+            })
+              .then(() => {
+                console.log(' updated balances');
+              })
+              .catch((err) => {
+                console.log(err);
+                res.status(500).send({ error: err });
+              });
+          })
+          .catch((err) => {
+            console.log(err);
+            res.status(500).send({ error: err });
+          });
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(500).send({ error: err });
+      });
   });
 
-  const lvgrpid = lvgrp._id;
-  console.log(lvgrpid);
-
-  await Groups.findOneAndUpdate(
-    { _id: lvgrpid },
-    {
-      $pull: {
-        members: _id,
-      },
-    },
-    { new: true }
-  )
-    .then((user) => {
-      console.log('updated groups');
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(500).send({ error: err });
-    });
-
-  await Users.findOneAndUpdate(
-    { _id: _id },
-    {
-      $pull: {
-        groups: lvgrpid,
-      },
-    },
-    { new: true }
-  )
-    .then((user) => {
-      console.log('updated user');
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(500).send({ error: err });
-    });
-
-  await Balances.deleteMany({
-    $or: [
-      { payer: _id, groupid: lvgrpid },
-      { payee: _id, groupid: lvgrpid },
-    ],
-  })
-    .then(() => {
-      console.log(' updated balances');
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(500).send({ error: err });
-    });
   res.status(200).send('left group succesfully');
 });
 

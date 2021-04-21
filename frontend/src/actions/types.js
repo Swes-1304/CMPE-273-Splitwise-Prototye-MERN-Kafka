@@ -7,4 +7,5 @@ export const UPDATE_PROFILE = 'UPDATE_PROFILE';
 export const CREATE_GROUP = 'CREATE_GROUP';
 export const GET_GROUPS = 'GET_GROUPS';
 export const GET_GROUPINVITES = 'GET_GROUPINVITES';
+export const GET_BALANCES = 'GET_BALANCES';
 // export const EMAIL_CHANGE = 'EMAIL_CHANGE';

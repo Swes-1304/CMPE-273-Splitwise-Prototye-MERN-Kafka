@@ -8,9 +8,9 @@ import {
 
 const initialState = {
   createSuccess: 0,
-  createdgroups: {},
-  groups: {},
-  groupinvites: {},
+  createdgroups: [],
+  groups: [],
+  groupinvites: [],
   success: 0,
   error: null,
 };
