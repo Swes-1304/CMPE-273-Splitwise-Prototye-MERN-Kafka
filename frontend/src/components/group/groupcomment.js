@@ -35,7 +35,11 @@ class Groupcomments extends Component {
           value={comment}
           placeholder="Add a comment"
           id="comment"
-          style={{ float: 'right' }}
+          style={{
+            float: 'right',
+            width: '250px',
+            height: '75px',
+          }}
           onChange={(e) => this.addcommentChangeHandler(e)}
           required
         />

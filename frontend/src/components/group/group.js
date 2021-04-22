@@ -10,7 +10,7 @@ import { Modal, Form, Image } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import Proptypes from 'prop-types';
 import { isEmpty } from 'lodash';
-import { IsEmpty } from 'react-lodash';
+// import { IsEmpty } from 'react-lodash';
 // import numeral from 'numeral';
 // import Expand from 'react-expand-animated';
 import backendServer from '../../webConfig';
@@ -325,7 +325,7 @@ class Groupdetailscl extends Component {
             <Sidebarcomp />
           </div>
         </div>
-        <div className="grouppage-box">
+        <div className="grouppage-box" style={{ overflowY: 'auto' }}>
           <section className="grouppage-heading-buttons">
             <section className="grouppage-heading">
               <h1>Group Name {grpname}</h1>
@@ -412,10 +412,16 @@ class Groupdetailscl extends Component {
               </ul>
             </section>
 
-            <section className="grouppage-center-sec">
+            <section
+              className="grouppage-center-sec"
+              style={{ overflowY: 'auto' }}
+            >
               <div className="grouppage-center-section-block" />
 
-              <div className="grouppage-center-section-block">
+              <div
+                className="grouppage-center-section-block"
+                style={{ overflowY: 'auto' }}
+              >
                 <br />
                 <div className="grouppage-block-border">
                   {checkifactivitiesnull ? (
@@ -455,47 +461,36 @@ class Groupdetailscl extends Component {
 
                               <div className="Column"> </div>
                             </div>
-
                             <div className="Main">
-                              <div className="BoxToggle">
-                                <p>Comments</p>
-                              </div>
                               <div className="ExpandBoxes">
                                 <div className="BoxExpand">
                                   {' '}
-                                  <IsEmpty
-                                    value={expense.comments}
-                                    yes={() => (
-                                      <div>
-                                        <h7>
-                                          There are no comments on this expense
-                                          yet!
-                                        </h7>
-                                        <div
-                                          style={{
-                                            float: 'bottom',
-                                          }}
-                                        >
-                                          <Groupcomments
-                                            // eslint-disable-next-line react/jsx-props-no-spreading
-                                            {...this.props}
-                                            addcomment={(val) => {
-                                              this.addcomment(
-                                                expense.value,
-                                                val
-                                              );
-                                            }}
-                                          />
-                                        </div>
-                                      </div>
-                                    )}
-                                    no={() => (
-                                      <div>
-                                        {' '}
-                                        <h7>NOTES AND COMMENTS</h7>
-                                        {expense.comments.map((cmt) => (
-                                          <ul className="group-expenses-group">
-                                            <li>
+                                  <br />
+                                  {isEmpty(expense.comments) ? (
+                                    <div
+                                      style={{
+                                        overflowY: 'auto',
+                                        width: '600px',
+                                      }}
+                                    >
+                                      <h7>
+                                        There are no comments on this expense
+                                        yet!
+                                      </h7>
+                                    </div>
+                                  ) : (
+                                    <div
+                                      style={{
+                                        overflowY: 'auto',
+                                        width: '600px',
+                                      }}
+                                    >
+                                      {' '}
+                                      <h7>NOTES AND COMMENTS</h7>
+                                      {expense.comments.map((cmt) => (
+                                        <ul className="group-expenses-group">
+                                          <li>
+                                            <p>
                                               {(() => {
                                                 if (
                                                   JSON.stringify(
@@ -503,24 +498,47 @@ class Groupdetailscl extends Component {
                                                   ) ===
                                                   JSON.stringify(currusername)
                                                 ) {
-                                                  return <h6>You </h6>;
+                                                  return (
+                                                    <b>
+                                                      <p
+                                                        style={{
+                                                          textWeight: 'bold',
+                                                          fontSize: '15px',
+                                                        }}
+                                                      >
+                                                        <b>You </b>{' '}
+                                                        {cmt.formatedcmtday}{' '}
+                                                        {cmt.formatedcmtmonth}
+                                                      </p>
+                                                    </b>
+                                                  );
                                                 }
 
                                                 return (
-                                                  <h6>{cmt.commentedby} </h6>
+                                                  <b>
+                                                    <p
+                                                      style={{
+                                                        textWeight: 'bold',
+                                                        fontSize: '15px',
+                                                      }}
+                                                    >
+                                                      <b>{cmt.commentedby}</b>
+                                                      {cmt.formatedcmtday}{' '}
+                                                      {cmt.formatedcmtmonth}
+                                                    </p>
+                                                  </b>
                                                 );
                                               })()}
-                                              <h6>
-                                                <p
-                                                  style={{
-                                                    textWeight: 'bold',
-                                                  }}
-                                                >
-                                                  {cmt.formatedcmtday}{' '}
-                                                  {cmt.formatedcmtmonth}
-                                                </p>
-                                                {cmt.comment}{' '}
-                                              </h6>
+                                              <p
+                                                style={{
+                                                  textWeight: 'bold',
+                                                  fontSize: '10px',
+                                                }}
+                                              >
+                                                {cmt.formatedcmtday}{' '}
+                                                {cmt.formatedcmtmonth}
+                                              </p>
+                                              {cmt.comment}{' '}
                                               {(() => {
                                                 if (
                                                   JSON.stringify(
@@ -544,6 +562,7 @@ class Groupdetailscl extends Component {
                                                           border: 'none',
                                                           color: '#ff652f',
                                                           fontWeight: 'bolder',
+                                                          float: 'right',
                                                         }}
                                                       >
                                                         X
@@ -554,68 +573,63 @@ class Groupdetailscl extends Component {
 
                                                 return <p> </p>;
                                               })()}
-                                            </li>
-                                          </ul>
-                                        ))}
-                                        <div>
-                                          <Modal
-                                            show={popup2}
-                                            onHide={this.closeHandler2}
-                                          >
-                                            <Modal.Header closeButton>
-                                              <Modal.Title>
-                                                Remove comment
-                                              </Modal.Title>
-                                            </Modal.Header>
-                                            <Modal.Body>
-                                              Do you want to remove your
-                                              comment?
-                                            </Modal.Body>
-                                            <Modal.Footer>
-                                              <Button
-                                                className="login-default"
-                                                onClick={() =>
-                                                  this.removecomment(
-                                                    commentid,
-                                                    expenseid
-                                                  )
-                                                }
-                                              >
-                                                √ Yes
-                                              </Button>
-                                              <Button
-                                                className="Signup-default"
-                                                onClick={this.closeHandler2}
-                                              >
-                                                x No
-                                              </Button>
-                                            </Modal.Footer>
-                                          </Modal>
-                                        </div>
-                                        <div
-                                          style={{
-                                            float: 'bottom',
-                                          }}
+                                            </p>
+                                          </li>
+                                        </ul>
+                                      ))}
+                                      <div>
+                                        <Modal
+                                          show={popup2}
+                                          onHide={this.closeHandler2}
                                         >
-                                          <Groupcomments
-                                            // eslint-disable-next-line react/jsx-props-no-spreading
-                                            {...this.props}
-                                            addcomment={(val) => {
-                                              this.addcomment(
-                                                expense.value,
-                                                val
-                                              );
-                                            }}
-                                          />
-                                        </div>
+                                          <Modal.Header closeButton>
+                                            <Modal.Title>
+                                              Remove comment
+                                            </Modal.Title>
+                                          </Modal.Header>
+                                          <Modal.Body>
+                                            Do you want to remove your comment?
+                                          </Modal.Body>
+                                          <Modal.Footer>
+                                            <Button
+                                              className="login-default"
+                                              onClick={() =>
+                                                this.removecomment(
+                                                  commentid,
+                                                  expenseid
+                                                )
+                                              }
+                                            >
+                                              √ Yes
+                                            </Button>
+                                            <Button
+                                              className="Signup-default"
+                                              onClick={this.closeHandler2}
+                                            >
+                                              x No
+                                            </Button>
+                                          </Modal.Footer>
+                                        </Modal>
                                       </div>
-                                    )}
-                                  />{' '}
+                                    </div>
+                                  )}{' '}
                                   <br />
+                                  <div
+                                    style={{
+                                      float: 'bottom',
+                                    }}
+                                  >
+                                    <Groupcomments
+                                      // eslint-disable-next-line react/jsx-props-no-spreading
+                                      {...this.props}
+                                      addcomment={(val) => {
+                                        this.addcomment(expense.value, val);
+                                      }}
+                                    />
+                                  </div>
                                 </div>
                               </div>
                             </div>
-
                             <hr
                               style={{
                                 height: '2px',

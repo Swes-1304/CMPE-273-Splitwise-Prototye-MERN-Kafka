@@ -1,3 +1,6 @@
+/* eslint-disable react/no-array-index-key */
+/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
 import React, { Component } from 'react';
 import cookie from 'react-cookies';
 import axios from 'axios';
@@ -31,15 +34,18 @@ class Recentactivitycl extends Component {
       selectedvalue: [],
       asc: false,
       desc: true,
+      currentPage: 1,
+      todosPerPage: 2,
     };
     this.sorthandlerasc = this.sorthandlerasc.bind(this);
     this.sorthandlerdesc = this.sorthandlerdesc.bind(this);
     // this.pagesizehandler = this.pagesizehandler.bind(this);
+    this.handlePagenumberClick = this.handlePagenumberClick.bind(this);
   }
 
-  componentDidMount() {
-    this.getrecentacitvities();
-    const getuserpgroups = this.getuserpgroups();
+  async componentDidMount() {
+    await this.getrecentacitvities();
+    const getuserpgroups = await this.getuserpgroups();
 
     const { reset1 } = this.props;
     reset1();
@@ -50,13 +56,21 @@ class Recentactivitycl extends Component {
     });
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
-    const { recentstate } = this.state;
-    if (nextState.recentstate.length !== recentstate.length) {
-      return true;
-    }
-    return false;
-  }
+  getrecentacitvities = () => {
+    const { recentActivities1 } = this.props;
+    recentActivities1();
+    this.forceUpdate();
+  };
+
+  handlePagenumberClick = (event) => {
+    console.log('KK: inside handlePagenumberClick', event.target.id);
+    this.setState({
+      currentPage: Number(event.target.id),
+    });
+    // this.forceUpdate();
+    // eslint-disable-next-line react/destructuring-assignment
+    console.log(this.state.currentPage);
+  };
 
   getuserpgroups = () => {
     const { token } = this.state;
@@ -79,11 +93,14 @@ class Recentactivitycl extends Component {
           groupslist: newaar,
           gpselectoptions: arrayforselect,
         });
+        console.log(arrayforselect);
         const { gpselectoptions } = this.state;
+        console.log(gpselectoptions);
         const obj = { value: 'All Groups', label: 'All Groups' };
         this.setState({
           gpselectoptions: [...gpselectoptions, obj],
         });
+        // this.forceUpdate();
       })
       .catch((err) => console.log(err));
   };
@@ -104,6 +121,7 @@ class Recentactivitycl extends Component {
         asc: true,
         desc: false,
       });
+      this.forceUpdate();
     }
   };
 
@@ -124,12 +142,14 @@ class Recentactivitycl extends Component {
         asc: false,
         desc: true,
       });
+      this.forceUpdate();
     }
   };
 
   gpselectoptionshandler = (e) => {
     const newarr = e.value;
     this.setState({ selectedvalue: newarr });
+    this.forceUpdate();
   };
 
   displayresults = (groupname) => {
@@ -150,11 +170,7 @@ class Recentactivitycl extends Component {
         recentstate: recent,
       });
     }
-  };
-
-  getrecentacitvities = () => {
-    const { recentActivities1 } = this.props;
-    recentActivities1();
+    this.forceUpdate();
   };
 
   render() {
@@ -175,6 +191,98 @@ class Recentactivitycl extends Component {
     if (isEmpty(recentstate)) {
       checkifactivitynull = true;
     }
+    const { currentPage, todosPerPage } = this.state;
+    const indexOfLastTodo = currentPage * todosPerPage;
+    const indexOfFirstTodo = indexOfLastTodo - todosPerPage;
+    const currentTodos = recentstate.slice(indexOfFirstTodo, indexOfLastTodo);
+    console.log(currentTodos);
+
+    const renderTodos = currentTodos.map((activities, index) => (
+      <ul className="recent-expenses" style={{ 'list-style-type': 'none' }}>
+        <li key={index}>
+          <div
+            className="Row"
+            style={{ display: 'flex', 'flex-direction': 'row' }}
+          >
+            <p>
+              {JSON.stringify(activities.paid) ===
+                JSON.stringify(currusername) &&
+                activities.gpname !== null && (
+                  <p>
+                    <p>
+                      <b>YOU </b>added a payment of{' '}
+                      <h6
+                        style={{
+                          color: '#3bb894',
+                          'font-weight': 'bold',
+                        }}
+                      >
+                        {activities.amnt}
+                      </h6>{' '}
+                      for <b>&quot;{activities.descp}&quot;</b> in{' '}
+                      <b>{activities.gpname} </b>
+                    </p>
+                  </p>
+                )}
+              {JSON.stringify(activities.paid) !==
+                JSON.stringify(currusername) && (
+                <p>
+                  <b>{activities.paid} </b>added a payment of{' '}
+                  <h6
+                    style={{
+                      color: '#ff652f',
+                      'font-weight': 'bold',
+                    }}
+                  >
+                    {activities.amnt}
+                  </h6>{' '}
+                  for <b>&quot;{activities.descp}&quot;</b> in{' '}
+                  <b>{activities.gpname} </b>;
+                </p>
+              )}
+              {JSON.stringify(activities.paid) ===
+                JSON.stringify(currusername) &&
+                activities.gpname === null && (
+                  <p>
+                    <b>You {activities.descp}</b>
+                  </p>
+                )}
+              <p>
+                <span>
+                  {activities.formatedmonth} {activities.formatedday},{' '}
+                  {activities.formatedyear} at {activities.time1}
+                </span>
+              </p>
+            </p>
+          </div>
+          <hr
+            style={{
+              height: '2px',
+              border: 'none',
+              color: 'grey',
+              'background-color': 'Grey',
+              'padding-top': '1px',
+              'padding-bottom': '1px',
+            }}
+          />
+        </li>
+      </ul>
+    ));
+
+    // console.log(renderTodos);
+
+    // Logic for displaying page numbers
+    const pageNumbers = [];
+    for (let i = 1; i <= Math.ceil(recentstate.length / todosPerPage); i += 1) {
+      pageNumbers.push(i);
+    }
+    const renderPageNumbers = pageNumbers.map((number) => (
+      <li key={number} id={number} onClick={this.handlePagenumberClick}>
+        {number}
+      </li>
+    ));
+
+    console.log(pageNumbers);
     return (
       <div>
         {redirectVar}
@@ -313,82 +421,8 @@ class Recentactivitycl extends Component {
                 ) : (
                   <div>
                     {' '}
-                    {recentstate.map((activities) => (
-                      <ul
-                        className="recent-expenses"
-                        style={{ 'list-style-type': 'none' }}
-                      >
-                        <li>
-                          <div
-                            className="Row"
-                            style={{ display: 'flex', 'flex-direction': 'row' }}
-                          >
-                            <p>
-                              {JSON.stringify(activities.paid) ===
-                                JSON.stringify(currusername) &&
-                                activities.gpname !== null && (
-                                  <p>
-                                    <p>
-                                      <b>YOU </b>added a payment of{' '}
-                                      <h6
-                                        style={{
-                                          color: '#3bb894',
-                                          'font-weight': 'bold',
-                                        }}
-                                      >
-                                        {activities.amnt}
-                                      </h6>{' '}
-                                      for <b>&quot;{activities.descp}&quot;</b>{' '}
-                                      in <b>{activities.gpname} </b>
-                                    </p>
-                                  </p>
-                                )}
-                              {JSON.stringify(activities.paid) !==
-                                JSON.stringify(currusername) && (
-                                <p>
-                                  <b>{activities.paid} </b>added a payment of{' '}
-                                  <h6
-                                    style={{
-                                      color: '#ff652f',
-                                      'font-weight': 'bold',
-                                    }}
-                                  >
-                                    {activities.amnt}
-                                  </h6>{' '}
-                                  for <b>&quot;{activities.descp}&quot;</b> in{' '}
-                                  <b>{activities.gpname} </b>;
-                                </p>
-                              )}
-                              {JSON.stringify(activities.paid) ===
-                                JSON.stringify(currusername) &&
-                                activities.gpname === null && (
-                                  <p>
-                                    <b>You {activities.descp}</b>
-                                  </p>
-                                )}
-                              <p>
-                                <span>
-                                  {activities.formatedmonth}{' '}
-                                  {activities.formatedday},{' '}
-                                  {activities.formatedyear} at{' '}
-                                  {activities.time1}
-                                </span>
-                              </p>
-                            </p>
-                          </div>
-                          <hr
-                            style={{
-                              height: '2px',
-                              border: 'none',
-                              color: 'grey',
-                              'background-color': 'Grey',
-                              'padding-top': '1px',
-                              'padding-bottom': '1px',
-                            }}
-                          />
-                        </li>
-                      </ul>
-                    ))}
+                    {renderTodos}
+                    <ul id="page-numbers">{renderPageNumbers}</ul>
                   </div>
                 )}
               </div>
