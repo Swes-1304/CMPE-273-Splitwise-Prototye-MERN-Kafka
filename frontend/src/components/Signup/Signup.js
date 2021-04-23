@@ -30,7 +30,7 @@ class Signupcl extends Component {
     this.emailChangeHandler = this.emailChangeHandler.bind(this);
     this.passwordChangeHandler = this.passwordChangeHandler.bind(this);
     this.submitsignup = this.submitsignup.bind(this);
-    this.handleRedirect = this.handleRedirect.bind(this);
+    // this.handleRedirect = this.handleRedirect.bind(this);
   }
 
   componentWillMount() {
@@ -42,10 +42,18 @@ class Signupcl extends Component {
     reset1();
   }
 
-  handleRedirect = () => {
-    console.log('handle redirect ');
-    return <Redirect to="/dashboard" />;
-  };
+  componentWillReceiveProps(nextProps) {
+    const { isloggedin } = this.props;
+    if (nextProps.isloggedin !== isloggedin) {
+      console.log(isloggedin);
+      if (nextProps.isloggedin === 'true') {
+        const redirectVar1 = <Redirect to="/dashboard" />;
+        this.setState({
+          redirecttohome: redirectVar1,
+        });
+      }
+    }
+  }
 
   usrchangeHandler = (e) => {
     this.setState({
@@ -127,13 +135,8 @@ class Signupcl extends Component {
         password,
       };
       const { userSignup1 } = this.props;
-      userSignup1({ data }, this.handleRedirect);
+      userSignup1({ data });
       console.log(' usersignup submit !');
-      const { isloggedin } = this.props;
-      console.log(isloggedin);
-      if (isloggedin === 'true') {
-        this.handleRedirect();
-      }
     }
   };
 

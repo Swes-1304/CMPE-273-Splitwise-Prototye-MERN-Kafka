@@ -167,6 +167,7 @@ export default function groupReducer(state = initialState, action, root) {
       return {
         ...state,
         error: null,
+        createSuccess: 0,
       };
     default:
       return state;

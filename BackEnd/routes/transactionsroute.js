@@ -7,7 +7,7 @@ const Groups = require('../Models/groupsModel');
 const Balances = require('../Models/balanceModel');
 const Transactions = require('../Models/transactionModel');
 const Comments = require('../Models/commentModel');
-
+const kafka = require('../kafka/client');
 const router = express.Router();
 
 const createtransactions = async (payedBy, groupid, tamount, tdescription) => {
@@ -34,6 +34,23 @@ const createcomments = async (commentBy, trancid, comment) => {
 };
 
 router.post('/addabill', passport.authenticate('jwt', { session: false }), async (req, res) => {
+  const userid = req.user._id;
+  const req1 = req.body;
+  const senddata = Object.assign({}, req1, { userid: userid });
+  console.log('inside addadbill original route ', senddata);
+  console.log('inside addadbill original route ', req.body);
+  kafka.make_request('add_bill1', senddata, function (err, results) {
+    console.log('in result');
+    console.log(results);
+    if (err) {
+      console.log('Inside err');
+      res.status(500).send({ error: err });
+    } else {
+      console.log('Inside else');
+      res.status(200).send('added succesfully!');
+    }
+  });
+  /*
   console.log('Inside addbill');
   console.log(req.body);
   const _id = req.user._id;
@@ -116,6 +133,7 @@ router.post('/addabill', passport.authenticate('jwt', { session: false }), async
     }
   );
   res.status(200).send('added succesfully!');
+  */
 });
 
 router.post('/settleup', passport.authenticate('jwt', { session: false }), async (req, res) => {
@@ -173,7 +191,22 @@ router.post('/addcomment', passport.authenticate('jwt', { session: false }), asy
   console.log('Inside  addcomment');
   console.log(req.body);
 
-  const _id = req.user._id;
+  const userid = req.user._id;
+  const req1 = req.body;
+  const senddata = Object.assign({}, req1, { userid: userid });
+  kafka.make_request('add_comment', senddata, function (err, results) {
+    console.log('in result');
+    console.log(results);
+    if (err) {
+      console.log('Inside err');
+      res.status(500).send({ error: err });
+    } else {
+      console.log('Inside else');
+      res.status(200).send('Comment added succesfully!');
+    }
+  });
+
+  /*
   const trsncid = req.body.trsncid;
   const comment = req.body.comment;
 
@@ -215,6 +248,7 @@ router.post('/addcomment', passport.authenticate('jwt', { session: false }), asy
   );
 
   res.status(200).send('Comment added succesfully succesfully');
+  */
 });
 
 router.post(
