@@ -30,11 +30,13 @@ class Dashboardcl extends Component {
   }
 
   // get the total balances
-  componentWillMount() {
-    console.log(' inside will mount !!');
-    this.gettotalbalances();
-    const { reset1, settleuplist } = this.props;
-    reset1();
+  componentDidMount() {
+    console.log(' inside did mount for dashboard!!');
+    const { totalBalances1 } = this.props;
+    totalBalances1();
+    // console.log(' now resetting errors! ');
+    const { settleuplist } = this.props;
+    // reset1();
 
     this.setState({
       settleupliststate: settleuplist,
@@ -430,7 +432,7 @@ function mapStateToProps(store) {
 const Dashboard = connect(mapStateToProps, mapDispatchToProps)(Dashboardcl);
 
 Dashboardcl.propTypes = {
-  reset1: Proptypes.func,
+  // reset1: Proptypes.func,
   errors: Proptypes.string,
   totalBalances1: Proptypes.func,
   totalsummary: Proptypes.instanceOf(Array),
@@ -442,7 +444,7 @@ Dashboardcl.propTypes = {
 };
 
 Dashboardcl.defaultProps = {
-  reset1: () => {},
+  // reset1: () => {},
   totalBalances1: () => {},
   errors: '',
   totalsummary: [],

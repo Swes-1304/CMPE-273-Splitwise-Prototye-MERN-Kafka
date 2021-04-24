@@ -46,7 +46,11 @@ module.exports.Users = mongoose.model('user', {
     required: false,
     default: '(GMT) Western Europe Time, London, Lisbon, Casablanca',
   },
-  userprofilephoto: { type: String, required: false, default: '' },
+  userprofilephoto: {
+    type: String,
+    required: false,
+    default: 'https://splitwise-profilepictures.s3.amazonaws.com/default_avatar.png',
+  },
   userlanguage: { type: String, required: false, default: 'English' },
   groups: [{ type: mongoose.Schema.Types.ObjectId, ref: Groups }],
   groupsInvitedTo: [

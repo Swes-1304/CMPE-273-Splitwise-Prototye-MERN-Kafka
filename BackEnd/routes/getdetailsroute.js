@@ -290,17 +290,16 @@ router.get(
   async (req, res) => {
     console.log(' inside getrecentacitvities');
     const _id = req.user._id;
-    console.log(_id);
+
     var groupspartof = [];
     await Users.find({ _id: _id }, { groups: 1, _id: 0 }, async (err, result) => {
       //res.status(200).json({ data: result });
       if (err) {
         res.status(400).send(err);
       }
-      //console.log(result);
-      console.log(result[0].groups);
+
       var transcationsarray = [];
-      for (let i = 0; i < result[0].groups.length; i++) {
+      /*for (let i = 0; i < result[0].groups.length; i++) {
         groupspartof.push(result[0].groups[i]._id);
         Transactions.find(
           { groupid: result[0].groups[i]._id },
@@ -311,33 +310,34 @@ router.get(
             if (err) {
               res.status(400).send(err);
             }
-            console.log('transactions result');
-            console.log(result);
             transcationsarray.push(result);
-            console.log('transactions array');
-            console.log(transcationsarray);
           });
-      }
-      var setteluparray = [];
+      }*/
       Transactions.find(
-        { payedBy: _id, groupid: '000000000000000000000000' },
-        { payedBy: 1, groupid: 1, tamount: 1, tdate: 1, tdescription: 1, tnotes: 1 }
+        { groupid: { $in: result[0].groups } },
+        { payedBy: 1, groupid: 1, tamount: 1, tdate: 1, tdescription: 1 }
       )
         .populate([{ path: 'payedBy' }, { path: 'groupid' }])
-        .exec(async (err, result) => {
+        .exec((err, result) => {
           if (err) {
             res.status(400).send(err);
           }
-          console.log('settleup result');
-          setteluparray = result;
-          // res.status(200).send(transcationsarray);
+          transcationsarray.push(result);
+          var setteluparray = [];
+          Transactions.find(
+            { payedBy: _id, groupid: '000000000000000000000000' },
+            { payedBy: 1, groupid: 1, tamount: 1, tdate: 1, tdescription: 1, tnotes: 1 }
+          )
+            .populate([{ path: 'payedBy' }, { path: 'groupid' }])
+            .exec(async (err, result) => {
+              if (err) {
+                res.status(400).send(err);
+              }
+              console.log('settleup result');
+              setteluparray = result;
+              res.status(200).send({ transactions: transcationsarray, settleup: setteluparray });
+            });
         });
-      // console.log('completetrancarray', completetrancarray);
-      setTimeout(function () {
-        console.log('transcationsarray array');
-        console.log(transcationsarray);
-        res.status(200).send({ transactions: transcationsarray, settleup: setteluparray });
-      }, 500);
     });
 
     // res.status(200).send(transcationsarray);

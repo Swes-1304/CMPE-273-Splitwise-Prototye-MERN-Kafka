@@ -8,11 +8,15 @@ export const userSignup = (signupData) => (dispatch) => {
     .post(`${backendServer}/signup`, signupData)
     .then((response) => {
       if (response.status === 200) {
-        dispatch({
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('profilepic', response.data.profilepic);
+        localStorage.setItem('username', response.data.username);
+        localStorage.setItem('defaultcurr', response.data.currencydef);
+        return dispatch({
           type: USER_SIGNUP,
           payload: response.data,
         });
-        return localStorage.setItem('token', response.data.token);
+        // return localStorage.setItem('token', response.data.token);
       }
       return dispatch({
         type: ERRORS,

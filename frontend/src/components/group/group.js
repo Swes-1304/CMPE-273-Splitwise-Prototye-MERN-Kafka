@@ -314,7 +314,7 @@ class Groupdetailscl extends Component {
       checkifsummiesnull = true;
     }
     const { username1 } = this.props;
-    const currusername = username1;
+    const currusername = username1 || localStorage.getItem('username');
     return (
       <div>
         {redirectVar}
@@ -488,57 +488,9 @@ class Groupdetailscl extends Component {
                                       {' '}
                                       <h7>NOTES AND COMMENTS</h7>
                                       {expense.comments.map((cmt) => (
-                                        <ul className="group-expenses-group">
+                                        <ul className="group-expenses-group11">
                                           <li>
                                             <p>
-                                              {(() => {
-                                                if (
-                                                  JSON.stringify(
-                                                    cmt.commentedby
-                                                  ) ===
-                                                  JSON.stringify(currusername)
-                                                ) {
-                                                  return (
-                                                    <b>
-                                                      <p
-                                                        style={{
-                                                          textWeight: 'bold',
-                                                          fontSize: '15px',
-                                                        }}
-                                                      >
-                                                        <b>You </b>{' '}
-                                                        {cmt.formatedcmtday}{' '}
-                                                        {cmt.formatedcmtmonth}
-                                                      </p>
-                                                    </b>
-                                                  );
-                                                }
-
-                                                return (
-                                                  <b>
-                                                    <p
-                                                      style={{
-                                                        textWeight: 'bold',
-                                                        fontSize: '15px',
-                                                      }}
-                                                    >
-                                                      <b>{cmt.commentedby}</b>
-                                                      {cmt.formatedcmtday}{' '}
-                                                      {cmt.formatedcmtmonth}
-                                                    </p>
-                                                  </b>
-                                                );
-                                              })()}
-                                              <p
-                                                style={{
-                                                  textWeight: 'bold',
-                                                  fontSize: '10px',
-                                                }}
-                                              >
-                                                {cmt.formatedcmtday}{' '}
-                                                {cmt.formatedcmtmonth}
-                                              </p>
-                                              {cmt.comment}{' '}
                                               {(() => {
                                                 if (
                                                   JSON.stringify(
@@ -558,11 +510,13 @@ class Groupdetailscl extends Component {
                                                         }}
                                                         style={{
                                                           backgroundColor:
-                                                            'rgb(228, 228, 228)',
+                                                            'white',
                                                           border: 'none',
                                                           color: '#ff652f',
+                                                          fontSize: '10px',
                                                           fontWeight: 'bolder',
                                                           float: 'right',
+                                                          paddingRight: '0px',
                                                         }}
                                                       >
                                                         X
@@ -573,6 +527,65 @@ class Groupdetailscl extends Component {
 
                                                 return <p> </p>;
                                               })()}
+                                              {(() => {
+                                                if (
+                                                  JSON.stringify(
+                                                    cmt.commentedby
+                                                  ) ===
+                                                  JSON.stringify(currusername)
+                                                ) {
+                                                  return (
+                                                    <p
+                                                      style={{
+                                                        fontSize: '15px',
+                                                        textWeight: 'bolder',
+                                                      }}
+                                                    >
+                                                      <b>You </b>{' '}
+                                                      <p
+                                                        style={{
+                                                          fontSize: '12px',
+                                                          float: 'right',
+                                                          textWeight: '200',
+                                                        }}
+                                                      >
+                                                        {cmt.formatedcmtday}{' '}
+                                                        {cmt.formatedcmtmonth}
+                                                      </p>
+                                                    </p>
+                                                  );
+                                                }
+                                                return (
+                                                  <p
+                                                    style={{
+                                                      fontSize: '15px',
+                                                      textWeight: 'bolder',
+                                                    }}
+                                                  >
+                                                    <b>{cmt.commentedby} </b>{' '}
+                                                    <p
+                                                      style={{
+                                                        fontSize: '12px',
+                                                        float: 'right',
+                                                        textWeight: '200',
+                                                      }}
+                                                    >
+                                                      {cmt.formatedcmtday}{' '}
+                                                      {cmt.formatedcmtmonth}
+                                                    </p>
+                                                  </p>
+                                                );
+                                              })()}
+
+                                              <p
+                                                style={{
+                                                  textWeight: 'bold',
+                                                  fontSize: '12px',
+                                                  color: 'rgb(70, 60, 51)',
+                                                }}
+                                              >
+                                                {cmt.comment}
+                                              </p>
                                             </p>
                                           </li>
                                         </ul>

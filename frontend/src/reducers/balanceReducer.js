@@ -18,7 +18,10 @@ const initialState = {
 };
 
 function totalsummary(balances, root1) {
-  const defaultcurrency1 = root1.login.user.currencydef;
+  console.log(' inside total reducer ');
+  const defaultcurrency1 =
+    root1.login.user.currencydef || localStorage.getItem('defaultcurr');
+  console.log(' inside total reducer default currency ', defaultcurrency1);
   const regExp = /\(([^)]+)\)/;
   const getvalue = regExp.exec(defaultcurrency1);
   const symbolvalue = getvalue[1];
@@ -27,13 +30,14 @@ function totalsummary(balances, root1) {
     youowe: symbolvalue + numeral(el.totalyouowe).format('0,0.00'),
     youareowed: symbolvalue + numeral(el.totalyouareowed).format('0,0.00'),
   }));
-  // console.log('arraytotalsummary', arraytotalsummary);
+  console.log('arraytotalsummary', arraytotalsummary);
   return arraytotalsummary;
 }
 
 function payerbalances(balances, root1) {
   // console.log(' inside payerbalances reducer ');
-  const defaultcurrency = root1.login.user.currencydef;
+  const defaultcurrency =
+    root1.login.user.currencydef || localStorage.getItem('defaultcurr');
   const regExp = /\(([^)]+)\)/;
   const getvalue = regExp.exec(defaultcurrency);
   const symbolvalue = getvalue[1];
@@ -55,7 +59,8 @@ function payerbalances(balances, root1) {
 }
 
 function payeebalances(balances, root1) {
-  const defaultcurrency = root1.login.user.currencydef;
+  const defaultcurrency =
+    root1.login.user.currencydef || localStorage.getItem('defaultcurr');
   const regExp = /\(([^)]+)\)/;
   const getvalue = regExp.exec(defaultcurrency);
   const symbolvalue = getvalue[1];
@@ -74,7 +79,8 @@ function payeebalances(balances, root1) {
 }
 
 function totalpayeruser(balances, root1) {
-  const defaultcurrency = root1.login.user.currencydef;
+  const defaultcurrency =
+    root1.login.user.currencydef || localStorage.getItem('defaultcurr');
   const regExp = /\(([^)]+)\)/;
   const getvalue = regExp.exec(defaultcurrency);
   const symbolvalue = getvalue[1];
@@ -82,7 +88,8 @@ function totalpayeruser(balances, root1) {
   const totalpayeename1 = [];
   const totalpayername1 = [];
   const totalamaount1 = [];
-  const username1 = root1.login.user.username;
+  const username1 =
+    root1.login.user.username || localStorage.getItem('username');
   let x;
   for (let i = 0; i < arrayindisummariesyouareowed.length; i += 1) {
     x = -1;
@@ -118,7 +125,8 @@ function totalpayeruser(balances, root1) {
 }
 
 function totalpayeeuser(balances, root1) {
-  const defaultcurrency = root1.login.user.currencydef;
+  const defaultcurrency =
+    root1.login.user.currencydef || localStorage.getItem('defaultcurr');
   const regExp = /\(([^)]+)\)/;
   const getvalue = regExp.exec(defaultcurrency);
   const symbolvalue = getvalue[1];
@@ -126,7 +134,8 @@ function totalpayeeuser(balances, root1) {
   const totalpayeename = [];
   const totalpayername = [];
   const totalamaount = [];
-  const username1 = root1.login.user.username;
+  const username1 =
+    root1.login.user.username || localStorage.getItem('username');
   let x;
   // console.log('KK:', arrayindisummariesyouowe);
   for (let i = 0; i < arrayindisummariesyouowe.length; i += 1) {

@@ -128,3 +128,19 @@
   margin: 20px;
   flex: auto;
 }
+
+.group-expenses-group11 {
+  margin-right: 0.5em;
+  color: black;
+  user-select: none;
+  cursor: pointer;
+  margin: 0 4px;
+  padding: 5px 10px;
+  border: 1px solid rgb(0, 0, 0);
+  display: inline-block;
+  border-radius: 5px;
+  width: 300px;
+  max-height: 100px;
+  overflow-y: auto;
+  background-color: white;
+}

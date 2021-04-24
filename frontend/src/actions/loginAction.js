@@ -9,6 +9,9 @@ export const userLogin = (loginData) => (dispatch) => {
     .then((response) => {
       if (response.status === 200) {
         localStorage.setItem('token', response.data.token);
+        localStorage.setItem('profilepic', response.data.profilepic);
+        localStorage.setItem('username', response.data.username);
+        localStorage.setItem('defaultcurr', response.data.currencydef);
         return dispatch({
           type: USER_LOGIN,
           payload: response.data,

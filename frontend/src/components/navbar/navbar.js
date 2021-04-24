@@ -24,7 +24,6 @@ class Navheadercl extends Component {
     localStorage.clear();
     const { userLogout1 } = this.props;
     userLogout1();
-    console.log(' userlogout !');
   };
 
   render() {
@@ -34,17 +33,34 @@ class Navheadercl extends Component {
       let profilepic;
       const { profilepicstore, username } = this.props;
       console.log(profilepicstore, username);
+      let username1 = username;
       const imagename = profilepicstore;
-      console.log(imagename);
-      if (imagename === 'null' || imagename === '' || imagename === ' ') {
-        profilepic = '/Profile_photos/default_avatar.png';
-        console.log(profilepic);
+      if (
+        imagename === 'null' ||
+        imagename === '' ||
+        imagename === ' ' ||
+        imagename === undefined
+      ) {
+        profilepic = localStorage.getItem('profilepic');
+        // console.log(profilepic);
       }
       // (imagename !== 'null' || imagename !== '')
       else {
         profilepic = imagename;
-        console.log(profilepic);
+        // console.log(profilepic);
       }
+
+      if (
+        username1 === 'null' ||
+        username1 === '' ||
+        username1 === ' ' ||
+        username1 === undefined
+      ) {
+        username1 = localStorage.getItem('username');
+      } else {
+        username1 = username;
+      }
+
       isloggedin = (
         <ul className="nav navbar-nav navbar-right">
           <li>
@@ -62,7 +78,7 @@ class Navheadercl extends Component {
           </li>
           <li>
             <Dropdown id="nav-dropdown" default>
-              {username}
+              {username1}
               <Dropdown.Toggle variant="default" />
               <Dropdown.Menu>
                 <Dropdown.Item>
@@ -98,7 +114,7 @@ class Navheadercl extends Component {
     return (
       <div>
         <Navbar className="navbar-default">
-          <Navbar.Brand classname="Navbar-Brand" variant="light" href="/">
+          <Navbar.Brand className="Navbar-Brand" variant="light" href="/">
             <img
               src="/Group_Photos/Splitwiseicon.png"
               className="icon"
@@ -122,7 +138,6 @@ function mapDispatchToProps(dispatch) {
 }
 
 function mapStateToProps(store) {
-  console.log(store);
   return {
     profilepicstore: store.login.user.profilepic,
     username: store.login.user.username,

@@ -27,7 +27,8 @@ const initialState = {
 
 function activities(expenses, root1) {
   console.log('expenses ', expenses);
-  const defaultcurrency = root1.login.user.currencydef;
+  const defaultcurrency =
+    root1.login.user.currencydef || localStorage.getItem('defaultcurr');
   const regExp = /\(([^)]+)\)/;
   const getvalue = regExp.exec(defaultcurrency);
   const symbolvalue = getvalue[1];
@@ -58,7 +59,8 @@ function activities(expenses, root1) {
 }
 
 function individuals(expenses, root1) {
-  const defaultcurrency = root1.login.user.currencydef;
+  const defaultcurrency =
+    root1.login.user.currencydef || localStorage.getItem('defaultcurr');
   const regExp = /\(([^)]+)\)/;
   const getvalue = regExp.exec(defaultcurrency);
   const symbolvalue = getvalue[1];
@@ -81,7 +83,8 @@ function individuals(expenses, root1) {
 
 function summaries(expenses, root1) {
   const arrayofindividuals = individuals(expenses, root1);
-  const defaultcurrency = root1.login.user.currencydef;
+  const defaultcurrency =
+    root1.login.user.currencydef || localStorage.getItem('defaultcurr');
   const regExp = /\(([^)]+)\)/;
   const getvalue = regExp.exec(defaultcurrency);
   const symbolvalue = getvalue[1];

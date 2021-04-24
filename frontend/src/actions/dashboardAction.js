@@ -4,7 +4,7 @@ import backendServer from '../webConfig';
 
 export const totalBalances = () => (dispatch) => {
   const token = localStorage.getItem('token');
-
+  console.log(' inside action of dashboad');
   axios
     .get(`${backendServer}/gettotalbalances`, {
       headers: {

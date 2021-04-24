@@ -253,7 +253,7 @@ class Profilepagecl extends Component {
     let profilepic;
     const { profilepicstore } = this.props;
     console.log(profilepicstore);
-    const imagename = profilepicstore;
+    const imagename = localStorage.getItem('profilepic');
     console.log(imagename);
     if (imagename === 'null' || imagename === '' || imagename === ' ') {
       profilepic = '/Profile_photos/default_avatar.png';

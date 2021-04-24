@@ -5,14 +5,11 @@ import React, { Component } from 'react';
 import cookie from 'react-cookies';
 import axios from 'axios';
 import { Redirect } from 'react-router';
-// import { Link } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
-// import numeral from 'numeral';
 import { connect } from 'react-redux';
 import Proptypes from 'prop-types';
 import { Dropdown } from 'react-bootstrap';
 import Select from 'react-select';
-// import { Row, Col, Container, Jumbotron } from 'react-bootstrap';
 import { isEmpty } from 'lodash';
 import { recentActivities } from '../../actions/recentactivityAction';
 import Sidebarcomp from '../navbar/sidebar';
@@ -35,20 +32,20 @@ class Recentactivitycl extends Component {
       asc: false,
       desc: true,
       currentPage: 1,
-      todosPerPage: 2,
+      transactionsPerPage: 2,
     };
     this.sorthandlerasc = this.sorthandlerasc.bind(this);
     this.sorthandlerdesc = this.sorthandlerdesc.bind(this);
-    // this.pagesizehandler = this.pagesizehandler.bind(this);
+    this.pagesizehandler = this.pagesizehandler.bind(this);
     this.handlePagenumberClick = this.handlePagenumberClick.bind(this);
   }
 
-  async componentDidMount() {
-    await this.getrecentacitvities();
-    const getuserpgroups = await this.getuserpgroups();
-
+  componentDidMount() {
+    const { recentActivities1 } = this.props;
+    recentActivities1();
     const { reset1 } = this.props;
     reset1();
+    const getuserpgroups = this.getuserpgroups();
     const { recent } = this.props;
     this.setState({
       groupslist: getuserpgroups,
@@ -56,20 +53,22 @@ class Recentactivitycl extends Component {
     });
   }
 
+  componentWillReceiveProps(nextProps) {
+    const { recentstate } = this.state;
+    if (nextProps.recent !== recentstate) {
+      this.setState({ recentstate: nextProps.recent });
+    }
+  }
+
   getrecentacitvities = () => {
     const { recentActivities1 } = this.props;
     recentActivities1();
-    this.forceUpdate();
   };
 
   handlePagenumberClick = (event) => {
-    console.log('KK: inside handlePagenumberClick', event.target.id);
     this.setState({
       currentPage: Number(event.target.id),
     });
-    // this.forceUpdate();
-    // eslint-disable-next-line react/destructuring-assignment
-    console.log(this.state.currentPage);
   };
 
   getuserpgroups = () => {
@@ -93,14 +92,11 @@ class Recentactivitycl extends Component {
           groupslist: newaar,
           gpselectoptions: arrayforselect,
         });
-        console.log(arrayforselect);
         const { gpselectoptions } = this.state;
-        console.log(gpselectoptions);
         const obj = { value: 'All Groups', label: 'All Groups' };
         this.setState({
           gpselectoptions: [...gpselectoptions, obj],
         });
-        // this.forceUpdate();
       })
       .catch((err) => console.log(err));
   };
@@ -121,7 +117,6 @@ class Recentactivitycl extends Component {
         asc: true,
         desc: false,
       });
-      this.forceUpdate();
     }
   };
 
@@ -142,14 +137,19 @@ class Recentactivitycl extends Component {
         asc: false,
         desc: true,
       });
-      this.forceUpdate();
     }
+  };
+
+  pagesizehandler = (size) => {
+    const pagesize = size;
+    this.setState({
+      transactionsPerPage: pagesize,
+    });
   };
 
   gpselectoptionshandler = (e) => {
     const newarr = e.value;
     this.setState({ selectedvalue: newarr });
-    this.forceUpdate();
   };
 
   displayresults = (groupname) => {
@@ -157,11 +157,10 @@ class Recentactivitycl extends Component {
     this.setState({
       recentstate: recent,
     });
-    const { recentstate } = this.state;
     const filtergrp = (recent1) => (key) =>
       [...recent1].filter((grp1) => grp1[key] === groupname);
 
-    const filtergrps = filtergrp(recentstate)('gpname');
+    const filtergrps = filtergrp(recent)('gpname');
     this.setState({
       recentstate: filtergrps,
     });
@@ -170,7 +169,6 @@ class Recentactivitycl extends Component {
         recentstate: recent,
       });
     }
-    this.forceUpdate();
   };
 
   render() {
@@ -178,8 +176,9 @@ class Recentactivitycl extends Component {
     if (!cookie.load('cookie')) {
       redirectVar = <Redirect to="/" />;
     }
+
     const { username1, errors } = this.props;
-    const currusername = username1;
+    const currusername = username1 || localStorage.getItem('username');
     const {
       recentstate,
       groupslist,
@@ -191,13 +190,15 @@ class Recentactivitycl extends Component {
     if (isEmpty(recentstate)) {
       checkifactivitynull = true;
     }
-    const { currentPage, todosPerPage } = this.state;
-    const indexOfLastTodo = currentPage * todosPerPage;
-    const indexOfFirstTodo = indexOfLastTodo - todosPerPage;
-    const currentTodos = recentstate.slice(indexOfFirstTodo, indexOfLastTodo);
-    console.log(currentTodos);
+    const { currentPage, transactionsPerPage } = this.state;
+    const indexOfLastTrnc = currentPage * transactionsPerPage;
+    const indexOfFirstTrnc = indexOfLastTrnc - transactionsPerPage;
+    const currentTranscations = recentstate.slice(
+      indexOfFirstTrnc,
+      indexOfLastTrnc
+    );
 
-    const renderTodos = currentTodos.map((activities, index) => (
+    const renderTranscations = currentTranscations.map((activities, index) => (
       <ul className="recent-expenses" style={{ 'list-style-type': 'none' }}>
         <li key={index}>
           <div
@@ -269,15 +270,23 @@ class Recentactivitycl extends Component {
       </ul>
     ));
 
-    // console.log(renderTodos);
-
     // Logic for displaying page numbers
     const pageNumbers = [];
-    for (let i = 1; i <= Math.ceil(recentstate.length / todosPerPage); i += 1) {
+    for (
+      let i = 1;
+      i <= Math.ceil(recentstate.length / transactionsPerPage);
+      i += 1
+    ) {
       pageNumbers.push(i);
     }
     const renderPageNumbers = pageNumbers.map((number) => (
-      <li key={number} id={number} onClick={this.handlePagenumberClick}>
+      <li
+        key={number}
+        id={number}
+        onClick={this.handlePagenumberClick}
+        // eslint-disable-next-line react/destructuring-assignment
+        className={this.state.currentPage === number ? 'selected' : ''}
+      >
         {number}
       </li>
     ));
@@ -318,21 +327,21 @@ class Recentactivitycl extends Component {
                     <Dropdown.Menu>
                       <Dropdown.Item
                         onSelect={() => {
-                          // this.pagesizehandler();
+                          this.pagesizehandler(2);
                         }}
                       >
                         Page Size 2{' '}
                       </Dropdown.Item>
                       <Dropdown.Item
                         onSelect={() => {
-                          // this.pagesizehandler();
+                          this.pagesizehandler(5);
                         }}
                       >
                         Page Size 5
                       </Dropdown.Item>
                       <Dropdown.Item
                         onSelect={() => {
-                          // this.pagesizehandler();
+                          this.pagesizehandler(10);
                         }}
                       >
                         Page Size 10
@@ -421,7 +430,7 @@ class Recentactivitycl extends Component {
                 ) : (
                   <div>
                     {' '}
-                    {renderTodos}
+                    {renderTranscations}
                     <ul id="page-numbers">{renderPageNumbers}</ul>
                   </div>
                 )}

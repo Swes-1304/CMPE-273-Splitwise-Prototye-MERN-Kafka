@@ -2,17 +2,21 @@ import numeral from 'numeral';
 import { RECENT_ACTIVITIES, RESET_ERRORS, ERRORS } from '../actions/types';
 
 const initialState = {
-  acitivties: [],
+  acitivties: {},
   recent: [],
 };
 
 function recentdescsorted(activities, root1) {
-  const data1 = activities.transactions[0];
+  const data1 = [];
+  for (let s = 0; s < activities.transactions.length; s += 1) {
+    for (let t = 0; t < activities.transactions[s].length; t += 1) {
+      data1.push(activities.transactions[s][t]);
+    }
+  }
   const data2 = activities.settleup;
   let mergedata1anddata2 = [];
-  // const username1 = root1.login.user.username;
-  // const email1 = root1.login.user.email;
-  const defaultcurrency = root1.login.user.currencydef;
+  const defaultcurrency =
+    root1.login.user.currencydef || localStorage.getItem('defaultcurr');
   const regExp = /\(([^)]+)\)/;
   const getvalue = regExp.exec(defaultcurrency);
   const symbolvalue = getvalue[1];
@@ -71,7 +75,7 @@ export default function transactionsReducer(
     case RECENT_ACTIVITIES:
       return {
         ...state,
-        activities: action.payload,
+        acitivties: action.payload,
         recent: recentdescsorted(action.payload, root),
         error: null,
       };

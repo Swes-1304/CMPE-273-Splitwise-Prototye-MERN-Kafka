@@ -13,6 +13,8 @@ export const updateProfile = (updateData) => (dispatch) => {
     })
     .then((response) => {
       if (response.status === 200) {
+        localStorage.setItem('profilepic', response.data.profilepic);
+        localStorage.setItem('username', response.data.username);
         return dispatch({
           type: UPDATE_PROFILE,
           payload: response.data,
