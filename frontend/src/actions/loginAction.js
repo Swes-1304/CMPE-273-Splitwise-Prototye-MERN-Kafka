@@ -12,6 +12,7 @@ export const userLogin = (loginData) => (dispatch) => {
         localStorage.setItem('profilepic', response.data.profilepic);
         localStorage.setItem('username', response.data.username);
         localStorage.setItem('defaultcurr', response.data.currencydef);
+        localStorage.setItem('email', response.data.email);
         return dispatch({
           type: USER_LOGIN,
           payload: response.data,

@@ -15,6 +15,8 @@ export const updateProfile = (updateData) => (dispatch) => {
       if (response.status === 200) {
         localStorage.setItem('profilepic', response.data.profilepic);
         localStorage.setItem('username', response.data.username);
+        localStorage.setItem('email', response.data.email);
+        localStorage.setItem('defaultcurr', response.data.currencydef);
         return dispatch({
           type: UPDATE_PROFILE,
           payload: response.data,

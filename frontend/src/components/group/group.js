@@ -59,16 +59,12 @@ class Groupdetailscl extends Component {
     // eslint-disable-next-line react/prop-types
     const { location } = this.props;
     // eslint-disable-next-line react/prop-types
-    console.log(location.state.gName);
-    console.log(this.props);
-    // eslint-disable-next-line react/prop-types
     const grpname1 = location.state.gName;
     this.getgrpexpenses(grpname1);
     this.getsummaryexpenses(grpname1);
 
     this.setState({
       grpname: grpname1,
-      // comments: comments1,
     });
     const { reset1 } = this.props;
     reset1();
@@ -103,9 +99,10 @@ class Groupdetailscl extends Component {
   };
 
   showHandler1 = () => {
-    const { summaries } = this.state;
+    const { summaries } = this.props;
     const { username1 } = this.props;
-    const currentusrname = username1;
+    console.log(summaries, 'summaries ');
+    const currentusrname = username1 || localStorage.getItem('username');
     for (let i = 0; i < summaries.length; i += 1) {
       if (
         currentusrname === summaries[i].payee &&

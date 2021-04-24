@@ -174,7 +174,7 @@ function totalpayeeuser(balances, root1) {
 }
 
 function settleuplist(balances, root1) {
-  const email1 = root1.login.user.email;
+  const email1 = root1.login.user.email || localStorage.getItem('email');
 
   const arrayindisummariesyouareowed = payerbalances(balances, root1);
   const arrayindisummariesyouowe = payeebalances(balances, root1);
