@@ -15,7 +15,7 @@ class LandingPage extends Component {
         <div className="landing">
           <Image
             className="landingpic"
-            src="/Group_Photos/blog-cover-image.png"
+            src="/Group_photos/blog-cover-image.png"
             alt="landing page"
             fluid
           />

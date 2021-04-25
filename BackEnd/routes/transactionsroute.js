@@ -18,7 +18,7 @@ const createtransactions = async (payedBy, groupid, tamount, tdescription) => {
     tamount,
     tdescription,
   };
-  console.log(data);
+  // console.log(data);
   return new Transactions(data).save();
 };
 
@@ -29,7 +29,7 @@ const createcomments = async (commentBy, trancid, comment) => {
     trancid,
     comment,
   };
-  console.log(data);
+  // console.log(data);
   return new Comments(data).save();
 };
 
@@ -37,17 +37,17 @@ router.post('/addabill', passport.authenticate('jwt', { session: false }), async
   const userid = req.user._id;
   const req1 = req.body;
   const senddata = Object.assign({}, req1, { userid: userid });
-  console.log('inside addadbill original route ', senddata);
-  console.log('inside addadbill original route ', req.body);
+  // console.log('inside addadbill original route ', senddata);
+  // console.log('inside addadbill original route ', req.body);
   kafka.make_request('add_bill1', senddata, function (err, results) {
     console.log('in result');
     console.log(results);
     if (err) {
-      console.log('Inside err');
+      // console.log('Inside err');
       res.status(500).send({ error: err });
     } else {
-      console.log('Inside else');
-      res.status(200).send('added succesfully!');
+      console.log('Results');
+      res.status(200).send(results);
     }
   });
   /*
@@ -198,11 +198,11 @@ router.post('/addcomment', passport.authenticate('jwt', { session: false }), asy
     console.log('in result');
     console.log(results);
     if (err) {
-      console.log('Inside err');
+      // console.log('Inside err');
       res.status(500).send({ error: err });
     } else {
-      console.log('Inside else');
-      res.status(200).send('Comment added succesfully!');
+      console.log('Results');
+      res.status(200).send(results);
     }
   });
 

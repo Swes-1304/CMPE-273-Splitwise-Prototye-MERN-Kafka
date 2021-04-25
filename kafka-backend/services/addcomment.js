@@ -7,7 +7,7 @@ const createcomments = async (commentBy, trancid, comment) => {
     trancid,
     comment,
   };
-  console.log(data);
+  //  console.log(data);
   return new mongo.Comments(data).save();
 };
 
@@ -50,8 +50,8 @@ async function handle_request(req, callback) {
         }
       )
         .then(async (user) => {
-          console.log('updated transactions');
-          callback(null, 'Comment added succesfully succesfully');
+          //  console.log('updated transactions');
+          callback(null, 'Comment added succesfully');
         })
         .catch((err) => {
           console.log(err);
@@ -65,7 +65,7 @@ async function handle_request(req, callback) {
   // res.status(200).send('added succesfully!');
   // books.push(msg);
   // callback(null, books);
-  console.log('after callback');
+  //  console.log('after callback');
 }
 
 exports.handle_request = handle_request;

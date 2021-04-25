@@ -102,8 +102,14 @@
 .grouppage-right {
   padding: 20px;
   text-align: center;
+  overflow-y: auto;
 }
 
+.title1 {
+  overflow-y: auto;
+  max-height: 880px;
+  white-space: nowrap;
+}
 .grouppage-right h2 {
   padding: 20px;
   text-align: center;

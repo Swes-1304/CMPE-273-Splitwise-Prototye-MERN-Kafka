@@ -1,14 +1,14 @@
 const mongo = require('./mongoose');
 
 const createtransactions = async (payedBy, groupid, tamount, tdescription) => {
-  console.log('new transaction');
+  // console.log('new transaction');
   const data = {
     payedBy,
     groupid,
     tamount,
     tdescription,
   };
-  console.log(data);
+  //  console.log(data);
   return new mongo.Transactions(data).save();
 };
 
@@ -16,8 +16,8 @@ async function handle_request(req, callback) {
   var res = {};
   console.log('Inside addbill kafka backend');
   console.log(req);
-  console.log('Inside addbill');
-  console.log(req);
+  // console.log('Inside addbill');
+  // console.log(req);
   const _id = req.userid;
   const grpname = req.grpname;
   const descript = req.descript;
@@ -44,7 +44,7 @@ async function handle_request(req, callback) {
       const noofmem = grp_id.membersinviteaccepted.length;
 
       const upadtedblnc = amt / noofmem;
-      console.log(' after groups update', grpid, noofmem, upadtedblnc);
+      //  console.log(' after groups update', grpid, noofmem, upadtedblnc);
       const newtrnc = await createtransactions(_id, grpid, amt, descript);
       const trncid = newtrnc._id;
       mongo.Transactions.find({ groupid: grpid }, { _id: 1 }, async (err, result) => {
@@ -52,7 +52,7 @@ async function handle_request(req, callback) {
           callback(err, 'error');
         }
 
-        console.log('trancation created ', trncid);
+        // console.log('trancation created ', trncid);
         mongo.Groups.findOneAndUpdate(
           { groupid: grpid },
           {
@@ -65,7 +65,7 @@ async function handle_request(req, callback) {
           }
         )
           .then(async (user) => {
-            console.log('updated groups');
+            //  console.log('updated groups');
             await mongo.Balances.updateMany(
               { payer: _id, groupid: grpid, payeeInvite: 1, payerInvite: 1 },
               {
@@ -79,8 +79,8 @@ async function handle_request(req, callback) {
               { multi: true }
             )
               .then(() => {
-                console.log('updated balances');
-                callback(null, 'Added succesfully!');
+                //  console.log('updated balances');
+                callback(null, 'Bill Added succesfully!');
               })
               .catch((err) => {
                 console.log(err);
@@ -100,7 +100,7 @@ async function handle_request(req, callback) {
   // res.status(200).send('added succesfully!');
   // books.push(msg);
   // callback(null, books);
-  console.log('after callback');
+  // console.log('after callback');
 }
 
 exports.handle_request = handle_request;

@@ -101,7 +101,6 @@ class Groupdetailscl extends Component {
   showHandler1 = () => {
     const { summaries } = this.props;
     const { username1 } = this.props;
-    console.log(summaries, 'summaries ');
     const currentusrname = username1 || localStorage.getItem('username');
     for (let i = 0; i < summaries.length; i += 1) {
       if (
@@ -149,7 +148,7 @@ class Groupdetailscl extends Component {
       amountvalue,
       grpname,
     };
-    console.log(bill);
+    // console.log(bill);
     axios
       .post(`${backendServer}/addabill`, bill, {
         headers: {
@@ -660,48 +659,60 @@ class Groupdetailscl extends Component {
         </div>
 
         <div className="grouppage-right" />
-        <div className="title"> </div>
-        {checkifsummiesnull ? (
-          <h7>NONE HAVE ACCEPTED THE INVITES TO THE GROUP!</h7>
-        ) : (
-          <div>
-            {' '}
-            <h2>Groups Summary</h2>
-            {summaries.map((expense) => (
-              <ul className="group-expenses-group">
-                <li>
-                  {(() => {
-                    if (
-                      JSON.stringify(expense.payee) ===
-                      JSON.stringify(currusername)
-                    ) {
-                      return <h6>You owe </h6>;
-                    }
+        <div className="title1">
+          {checkifsummiesnull ? (
+            <h7>NONE HAVE ACCEPTED THE INVITES TO THE GROUP!</h7>
+          ) : (
+            <div>
+              {' '}
+              <h2>Groups Summary</h2>
+              {summaries.map((expense) => (
+                <ul className="group-expenses-group">
+                  <li>
+                    <p>
+                      {(() => {
+                        if (
+                          JSON.stringify(expense.payee) ===
+                          JSON.stringify(currusername)
+                        ) {
+                          return (
+                            <span>
+                              <b>You </b> owe{' '}
+                            </span>
+                          );
+                        }
 
-                    return <h6>{expense.payee} owes </h6>;
-                  })()}
-                  <h6>
-                    <h7 style={{ color: '#ff652f', 'text-weight': 'bold' }}>
-                      {expense.formattotalamt}{' '}
-                    </h7>
-                    in Total{' '}
-                  </h6>
-                </li>
-              </ul>
-            ))}
-            <h2> Details :</h2>
-            {individuals.map((expense) => (
-              <ul className="group-expenses-group">
-                <li>
-                  {expense.payeename} owes {expense.payername}{' '}
-                  <p style={{ color: '#ff652f', 'text-weight': 'bold' }}>
-                    {expense.formatedbalance}
-                  </p>
-                </li>
-              </ul>
-            ))}
-          </div>
-        )}
+                        return (
+                          <span>
+                            {' '}
+                            <b>{expense.payee} </b> owes{' '}
+                          </span>
+                        );
+                      })()}
+                      <b style={{ color: '#ff652f', 'text-weight': 'bold' }}>
+                        {expense.formattotalamt}{' '}
+                      </b>
+                      in Total{' '}
+                    </p>
+                  </li>
+                </ul>
+              ))}
+              <h2> Details :</h2>
+              {individuals.map((expense) => (
+                <ul className="group-expenses-group">
+                  <li>
+                    <p style={{ width: '100px' }}>
+                      {expense.payeename} owes {expense.payername}{' '}
+                      <b style={{ color: '#ff652f', 'text-weight': 'bold' }}>
+                        {expense.formatedbalance}
+                      </b>
+                    </p>
+                  </li>
+                </ul>
+              ))}
+            </div>
+          )}
+        </div>
         <p className="errmsg" style={{ color: 'maroon' }}>
           {' '}
           {errors}{' '}

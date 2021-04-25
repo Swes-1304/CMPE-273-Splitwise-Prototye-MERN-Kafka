@@ -58,11 +58,10 @@ KafkaRPC.prototype.makeRequest = function (topic_name, content, callback) {
         partition: 0,
       },
     ];
-    console.log('before respone 1', payloads[0].messages);
-    console.log('in response1');
+    console.log('in response1 Producer ready');
     console.log(self.producer.ready);
     self.producer.send(payloads, function (err, data) {
-      console.log('in response2');
+      console.log('in response2 results');
       if (err) console.log(err);
       console.log(data);
     });

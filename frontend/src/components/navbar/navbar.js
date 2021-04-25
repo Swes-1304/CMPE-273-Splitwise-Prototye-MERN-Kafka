@@ -116,7 +116,7 @@ class Navheadercl extends Component {
         <Navbar className="navbar-default">
           <Navbar.Brand className="Navbar-Brand" variant="light" href="/">
             <img
-              src="/Group_Photos/Splitwiseicon.png"
+              src="/Group_photos/Splitwiseicon.png"
               className="icon"
               alt="icon"
             />

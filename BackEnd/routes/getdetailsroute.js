@@ -132,8 +132,8 @@ router.get(
         res.status(400).send(err);
       }
       grpid = result._id;
-      console.log('groups find ');
-      console.log(grpid, result);
+      // console.log('groups find ');
+      // console.log(grpid, result);
       await Transactions.find(
         { groupid: grpid },
         { payedBy: 1, tamount: 1, tdate: 1, tdescription: 1, tnotes: 1 }
@@ -145,7 +145,7 @@ router.get(
           if (err) {
             res.status(400).send(err);
           }
-          console.log('transactions result');
+          // console.log('transactions result');
           console.log(result);
           res.status(200).send(result);
         });
@@ -159,7 +159,7 @@ router.get(
   async (req, res) => {
     console.log('Inside getsummaryexpenses');
     const gpname = req.params.gpname;
-    console.log(gpname);
+    //    console.log(gpname);
     var grpid;
     await Groups.findOne({ groupname: gpname }, { _id: 1 }, async (err, result) => {
       //res.status(200).json({ data: result });
@@ -167,8 +167,8 @@ router.get(
         res.status(400).send(err);
       }
       grpid = result._id;
-      console.log('groups find ');
-      console.log(grpid);
+      //    console.log('groups find ');
+      //  console.log(grpid);
       await Balances.find(
         { groupid: grpid, payeeInvite: 1, payerInvite: 1 },
         { payer: 1, payee: 1, balance: 1, settled: 1 }
@@ -178,8 +178,8 @@ router.get(
           if (err) {
             res.status(400).send(err);
           }
-          console.log('balances result');
-          console.log(result);
+          //    console.log('balances result');
+          //  console.log(result);
           const arrayofsummaryexpenses = result.map((el) => ({
             payer: el.payer.username,
             payeremail: el.payer.email,
@@ -188,7 +188,7 @@ router.get(
             groupname: el.groupid.groupname,
             balance: JSON.parse(el.balance.toString()),
           }));
-          console.log('arrayofsummaryexpenses', arrayofsummaryexpenses);
+          // console.log('arrayofsummaryexpenses', arrayofsummaryexpenses);
 
           res.status(200).send(arrayofsummaryexpenses);
         });
