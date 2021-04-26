@@ -47,7 +47,7 @@ class Createnewgroupcl extends Component {
     const { iscreateSuccess } = this.props;
     const { groupname } = this.state;
     if (nextProps.iscreateSuccess !== iscreateSuccess) {
-      console.log(iscreateSuccess);
+      // console.log(iscreateSuccess);
       if (nextProps.iscreateSuccess === 1) {
         const redirectVar1 = (
           <Redirect to={{ pathname: '/group', state: { gName: groupname } }} />
@@ -75,8 +75,8 @@ class Createnewgroupcl extends Component {
           value: txt.email,
           label: `${txt.username}(${txt.email})`,
         }));
-        console.log(usernametext);
-        console.log(response.data);
+        // console.log(usernametext);
+        // console.log(response.data);
         this.setState({ selectUsername: usernametext });
       })
       .catch((err) => console.log(err));

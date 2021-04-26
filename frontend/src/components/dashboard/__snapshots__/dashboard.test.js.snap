@@ -8,15 +8,14 @@ Array [
         className="navbar-default navbar navbar-expand navbar-light"
       >
         <a
-          className="navbar-brand"
-          classname="Navbar-Brand"
+          className="Navbar-Brand navbar-brand"
           href="/"
           variant="light"
         >
           <img
             alt="icon"
             className="icon"
-            src="/Group_Photos/Splitwiseicon.png"
+            src="/Group_photos/Splitwiseicon.png"
           />
           <span
             className="NavItem"
@@ -267,19 +266,30 @@ Array [
           <div
             className="transactions-owe"
           >
-            <h2>
+            <h7>
               YOU OWE NOTHING
-            </h2>
+            </h7>
           </div>
           <div
             className="transactions-owed"
           >
-            <h2>
+            <h7>
               YOU ARE OWED NOTHING
-            </h2>
+            </h7>
           </div>
         </section>
       </div>
+      <p
+        className="errmsg"
+        style={
+          Object {
+            "color": "maroon",
+          }
+        }
+      >
+         
+         
+      </p>
       <div
         className="dashboard-right"
       />

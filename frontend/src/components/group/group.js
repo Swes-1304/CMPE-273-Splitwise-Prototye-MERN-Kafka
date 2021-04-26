@@ -60,6 +60,7 @@ class Groupdetailscl extends Component {
     const { location } = this.props;
     // eslint-disable-next-line react/prop-types
     const grpname1 = location.state.gName;
+
     this.getgrpexpenses(grpname1);
     this.getsummaryexpenses(grpname1);
 

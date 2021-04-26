@@ -1,6 +1,11 @@
 {
   "name": "frontend",
   "version": "0.1.0",
+  "jest" : {
+    "moduleNameMapper": {
+      "src(.*)$": "<rootDir>/src$"
+    }
+  },
   "private": true,
   "dependencies": {
     "@babel/plugin-proposal-class-properties": "^7.13.0",
@@ -48,7 +53,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "react-scripts test --transformIgnorePatterns \"node_modules/(?!(react-s3))/\"",
     "eject": "react-scripts eject"
   },
   "prettier": {

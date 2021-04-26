@@ -36,10 +36,10 @@ class Logincl extends Component {
 
   componentWillReceiveProps(nextProps) {
     const { isloggedin } = this.props;
-    const { redirecttohome } = this.state;
-    console.log(redirecttohome);
+    // const { redirecttohome } = this.state;
+    // console.log(redirecttohome);
     if (nextProps.isloggedin !== isloggedin) {
-      console.log(isloggedin);
+      // console.log(isloggedin);
       if (nextProps.isloggedin === 'true') {
         const redirectVar1 = <Redirect to="/dashboard" />;
         this.setState({

@@ -139,7 +139,25 @@ router.post('/addabill', passport.authenticate('jwt', { session: false }), async
 router.post('/settleup', passport.authenticate('jwt', { session: false }), async (req, res) => {
   console.log('Inside  settleup');
   console.log(req.body);
+  const userid = req.user._id;
+  const email = req.user.email;
+  const req1 = req.body;
+  const senddata = Object.assign({}, req1, { userid: userid, email: email });
+  // console.log('inside addadbill original route ', senddata);
+  // console.log('inside addadbill original route ', req.body);
+  kafka.make_request('settle_up', senddata, function (err, results) {
+    console.log('in result');
+    console.log(results);
+    if (err) {
+      // console.log('Inside err');
+      res.status(500).send({ error: err });
+    } else {
+      console.log('Results');
+      res.status(200).send(results);
+    }
+  });
 
+  /*
   const _id = req.user._id;
   const settledupemail = req.body.settleupwith;
   const currentuseremail = req.user.email;
@@ -184,7 +202,7 @@ router.post('/settleup', passport.authenticate('jwt', { session: false }), async
           res.status(500).send({ error: err });
         });
     });
-  });
+  });*/
 });
 
 router.post('/addcomment', passport.authenticate('jwt', { session: false }), async (req, res) => {
@@ -258,6 +276,22 @@ router.post(
     console.log('Inside  deletecomment');
     console.log(req.body);
 
+    const userid = req.user._id;
+    const req1 = req.body;
+    const senddata = Object.assign({}, req1, { userid: userid });
+    kafka.make_request('remove_comment', senddata, function (err, results) {
+      console.log('in result');
+      console.log(results);
+      if (err) {
+        // console.log('Inside err');
+        res.status(500).send({ error: err });
+      } else {
+        console.log('Results');
+        res.status(200).send(results);
+      }
+    });
+
+    /*
     const _id = req.user._id;
     const trsncid = req.body.trsncid;
     const cmtid = req.body.cmtid;
@@ -294,7 +328,7 @@ router.post(
       .catch((err) => {
         console.log(err);
         res.status(500).send({ error: err });
-      });
+      });*/
   }
 );
 

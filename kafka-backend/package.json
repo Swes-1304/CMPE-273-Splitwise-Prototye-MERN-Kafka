@@ -10,8 +10,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^8.5.1",
     "kafka-node": "^2.6.1",
     "kafkajs": "^1.15.0",
-    "mongoose": "^5.12.5"
+    "mongoose": "^5.12.5",
+    "passport": "^0.4.1"
   }
 }

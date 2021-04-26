@@ -7,15 +7,14 @@ exports[`renders 1`] = `
       className="navbar-default navbar navbar-expand navbar-light"
     >
       <a
-        className="navbar-brand"
-        classname="Navbar-Brand"
+        className="Navbar-Brand navbar-brand"
         href="/"
         variant="light"
       >
         <img
           alt="icon"
           className="icon"
-          src="/Group_Photos/Splitwiseicon.png"
+          src="/Group_photos/Splitwiseicon.png"
         />
         <span
           className="NavItem"
@@ -142,6 +141,17 @@ exports[`renders 1`] = `
                 type="text"
               />
             </div>
+            <p
+              className="errmsg"
+              style={
+                Object {
+                  "color": "maroon",
+                }
+              }
+            >
+               
+               
+            </p>
             <br />
             <div
               className="group_members"
@@ -158,8 +168,11 @@ exports[`renders 1`] = `
                   <div
                     className="grpnameemail"
                   >
+                    
                     (
-                    <em />
+                    <em>
+                      
+                    </em>
                     )
                   </div>
                   <div
@@ -167,7 +180,7 @@ exports[`renders 1`] = `
                     style={
                       Object {
                         "display": "flex",
-                        "flex-direction": "row",
+                        "flexDirection": "row",
                         "width": "300px",
                       }
                     }
@@ -197,15 +210,15 @@ exports[`renders 1`] = `
                           onTouchEnd={[Function]}
                         >
                           <div
-                            className=" css-g1d714-ValueContainer"
+                            className=" css-l1xr2i-Component"
                           >
                             <div
-                              className=" css-1wa3eu0-placeholder"
+                              className=" css-1uccc91-singleValue"
                             >
-                              Select...
+                              
                             </div>
                             <div
-                              className="css-b8ldur-Input"
+                              className="css-xry0bu-Component"
                             >
                               <div
                                 className=""
@@ -263,7 +276,7 @@ exports[`renders 1`] = `
                             </div>
                           </div>
                           <div
-                            className=" css-1hb7zxy-IndicatorsContainer"
+                            className=" css-ny0e4k-Component"
                           >
                             <span
                               className=" css-1okebmr-indicatorSeparator"
@@ -336,7 +349,29 @@ exports[`renders 1`] = `
                 <div
                   className="invitelink"
                 >
+                  <p
+                    className="errmsg"
+                    style={
+                      Object {
+                        "color": "maroon",
+                      }
+                    }
+                  >
+                     
+                     
+                  </p>
                   <div />
+                  <p
+                    className="errmsg"
+                    style={
+                      Object {
+                        "color": "maroon",
+                      }
+                    }
+                  >
+                     
+                     
+                  </p>
                 </div>
                 <div
                   className="savebtn"
@@ -350,17 +385,6 @@ exports[`renders 1`] = `
                   >
                     Save
                   </button>
-                  <p
-                    className="errmsg"
-                    style={
-                      Object {
-                        "color": "maroon",
-                      }
-                    }
-                  >
-                     
-                     
-                  </p>
                 </div>
               </div>
             </div>

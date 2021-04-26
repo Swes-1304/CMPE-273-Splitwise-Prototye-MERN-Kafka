@@ -5,11 +5,9 @@ const { config } = require('../store/config');
 const Users = require('../Models/usersModel');
 const Groups = require('../Models/groupsModel');
 const Balances = require('../Models/balanceModel');
-// var multer = require('multer');
+const kafka = require('../kafka/client');
 
 const router = express.Router();
-// const upload = require('../store/imageUpload');
-// const updatepic = upload.single('group_avatar');
 
 const createnewgroup = async (groupname, groupphoto, members, membersinviteaccepted) => {
   console.log('newgroup');
@@ -39,9 +37,34 @@ router.post(
   '/createnewgroup',
   passport.authenticate('jwt', { session: false }),
   async (req, res) => {
-    console.log('Inside  createnewgroup');
-    console.log(req.body);
-    const _id = req.user._id;
+    // console.log('Inside  createnewgroup');
+    // console.log(req.body);
+
+    const userid = req.user._id;
+    const groupcreatedbyemail = req.user.email;
+    const req1 = req.body;
+    const senddata = Object.assign({}, req1, {
+      userid: userid,
+      groupcreatedbyemail: groupcreatedbyemail,
+    });
+    // console.log('inside addadbill original route ', senddata);
+    // console.log('inside addadbill original route ', req.body);
+    kafka.make_request('create_group', senddata, function (err, results) {
+      console.log('in result');
+      console.log(results);
+      if (err) {
+        // console.log('Inside err');
+        res.status(500).send({ error: err });
+      } else {
+        console.log('Results');
+        if (results === 'Groupname is not unique!') {
+          res.status(401).send('Groupname is not unique!');
+          return;
+        }
+        res.status(200).send(results);
+      }
+    });
+    /* const _id = req.user._id;
     const grpname = req.body.data.groupname;
     const groupcreatedbyemail = req.user.email;
     const grpmemadded = req.body.data.gplist;
@@ -183,7 +206,7 @@ router.post(
           });
         res.status(200).send({ groupname: grpname });
       });
-    }
+    }*/
   }
 );
 
@@ -194,8 +217,26 @@ router.post(
     console.log('Inside  acceptinvitaion');
     console.log(req.body);
 
+    const userid = req.user._id;
+    const req1 = req.body;
+    const senddata = Object.assign({}, req1, {
+      userid: userid,
+    });
+
+    kafka.make_request('accept_invite', senddata, function (err, results) {
+      console.log('in result');
+      console.log(results);
+      if (err) {
+        // console.log('Inside err');
+        res.status(500).send({ error: err });
+      } else {
+        console.log('Results');
+        res.status(200).send(results);
+      }
+    });
+
+    /*
     const _id = req.user._id;
-    //const useremail = req.body.useremail;
     const grpname = req.body.currentgrp;
     var accgrp;
     await Groups.findOne({ groupname: grpname }, { _id: 1 }, async (err, result) => {
@@ -284,7 +325,7 @@ router.post(
         });
     });
 
-    res.status(200).send('accepted');
+    res.status(200).send('accepted');*/
   }
 );
 
@@ -295,6 +336,25 @@ router.post(
     console.log('Inside  denyinvitation');
     console.log(req.body);
 
+    const userid = req.user._id;
+    const req1 = req.body;
+    const senddata = Object.assign({}, req1, {
+      userid: userid,
+    });
+
+    kafka.make_request('deny_invite', senddata, function (err, results) {
+      console.log('in result');
+      console.log(results);
+      if (err) {
+        // console.log('Inside err');
+        res.status(500).send({ error: err });
+      } else {
+        console.log('Results');
+        res.status(200).send(results);
+      }
+    });
+
+    /*
     const _id = req.user._id;
     //const useremail = req.body.useremail;
     const grpname = req.body.currentgrp;
@@ -362,14 +422,32 @@ router.post(
         });
     });
 
-    res.status(200).send('denied');
+    res.status(200).send('denied');*/
   }
 );
 
 router.post('/leavegroup', passport.authenticate('jwt', { session: false }), async (req, res) => {
   console.log('Inside  leavegroup');
-  console.log(req.body);
+  // console.log(req.body);
 
+  const userid = req.user._id;
+  const req1 = req.body;
+  const senddata = Object.assign({}, req1, {
+    userid: userid,
+  });
+
+  kafka.make_request('leave_group', senddata, function (err, results) {
+    console.log('in result');
+    console.log(results);
+    if (err) {
+      // console.log('Inside err');
+      res.status(500).send({ error: err });
+    } else {
+      console.log('Results');
+      res.status(200).send(results);
+    }
+  });
+  /*
   const _id = req.user._id;
   //const useremail = req.body.useremail;
   const grpname = req.body.grpname;
@@ -385,7 +463,7 @@ router.post('/leavegroup', passport.authenticate('jwt', { session: false }), asy
         },
       });
     }
-    console.log(' result ', result);
+    // console.log(' result ', result);
     lvgrp = result;
     const lvgrpid = lvgrp._id;
     console.log(lvgrpid);
@@ -400,7 +478,7 @@ router.post('/leavegroup', passport.authenticate('jwt', { session: false }), asy
       { new: true }
     )
       .then(async (user) => {
-        console.log('updated groups');
+        // console.log('updated groups');
         await Users.findOneAndUpdate(
           { _id: _id },
           {
@@ -411,7 +489,7 @@ router.post('/leavegroup', passport.authenticate('jwt', { session: false }), asy
           { new: true }
         )
           .then(async (user) => {
-            console.log('updated user');
+            // console.log('updated user');
             await Balances.deleteMany({
               $or: [
                 { payer: _id, groupid: lvgrpid },
@@ -419,7 +497,7 @@ router.post('/leavegroup', passport.authenticate('jwt', { session: false }), asy
               ],
             })
               .then(() => {
-                console.log(' updated balances');
+                // console.log(' updated balances');
               })
               .catch((err) => {
                 console.log(err);
@@ -437,7 +515,7 @@ router.post('/leavegroup', passport.authenticate('jwt', { session: false }), asy
       });
   });
 
-  res.status(200).send('left group succesfully');
+  res.status(200).send('left group succesfully');*/
 });
 
 module.exports = router;

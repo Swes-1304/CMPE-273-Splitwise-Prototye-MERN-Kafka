@@ -8,15 +8,14 @@ Array [
         className="navbar-default navbar navbar-expand navbar-light"
       >
         <a
-          className="navbar-brand"
-          classname="Navbar-Brand"
+          className="Navbar-Brand navbar-brand"
           href="/"
           variant="light"
         >
           <img
             alt="icon"
             className="icon"
-            src="/Group_Photos/Splitwiseicon.png"
+            src="/Group_photos/Splitwiseicon.png"
           />
           <span
             className="NavItem"
@@ -81,7 +80,7 @@ Array [
           <img
             alt="profile pic"
             className="avatar1"
-            src="/Profile_photos/null"
+            src={null}
           />
           <br />
           <label
@@ -122,6 +121,7 @@ Array [
                   type="text"
                 />
               </label>
+              
               <br />
               <br />
               <label
@@ -153,6 +153,9 @@ Array [
                 />
               </label>
             </div>
+            
+            
+            
           </section>
           <section
             className="right-block"
@@ -335,6 +338,17 @@ Array [
                 </select>
               </div>
             </div>
+            <p
+              className="errmsg"
+              style={
+                Object {
+                  "color": "maroon",
+                }
+              }
+            >
+               
+               
+            </p>
             <div
               className="savebtn"
               data-testid="Saveupdates"

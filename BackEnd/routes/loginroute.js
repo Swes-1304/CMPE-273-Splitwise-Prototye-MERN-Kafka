@@ -6,6 +6,7 @@ const { validationResult } = require('express-validator');
 const { loginValidation } = require('../store/utils');
 const { signupValidation } = require('../store/utils');
 const { config } = require('../store/config');
+const kafka = require('../kafka/client');
 const { generateServerErrorCode, bcryptPassword } = require('../store/utils');
 const { SOME_THING_WENT_WRONG } = require('../store/constant.js');
 const Users = require('../Models/usersModel');
@@ -30,8 +31,6 @@ const createnewUser = async (username, email, password) => {
 };
 
 router.post('/signup', signupValidation, async (req, res) => {
-  console.log('req body');
-  console.log(req.body);
   const errorsfromvalidation = validationResult(req.body.data);
   if (!errorsfromvalidation.isEmpty()) {
     return res.status(400).json({
@@ -39,6 +38,24 @@ router.post('/signup', signupValidation, async (req, res) => {
       errors: errorsfromvalidation.mapped(),
     });
   }
+
+  kafka.make_request('signup', req.body, function (err, results) {
+    console.log('in result');
+    console.log(results);
+    if (err) {
+      // console.log('Inside err');
+      res.status(500).send({ error: err });
+    } else {
+      if (results === 'Email already exists!!Please Login or use a different email ID') {
+        res.status(401).send('Email already exists!!Please Login or use a different email ID');
+        return;
+      }
+      res.cookie('cookie', results.token, { maxAge: 900000, httpOnly: false, path: '/' });
+      res.status(200).send(results);
+    }
+  });
+
+  /*
   try {
     const { username, email, password } = req.body.data;
     console.log('req body');
@@ -69,11 +86,10 @@ router.post('/signup', signupValidation, async (req, res) => {
     generateServerErrorCode(res, 500, err, SOME_THING_WENT_WRONG);
     return;
   }
+  */
 });
 
 router.post('/login', loginValidation, async (req, res) => {
-  console.log(' inside login ');
-  console.log(req.body);
   const errorsfromvalidation = validationResult(req.body.data);
   if (!errorsfromvalidation.isEmpty()) {
     console.log(errorsfromvalidation.mapped());
@@ -82,6 +98,26 @@ router.post('/login', loginValidation, async (req, res) => {
       errors: errorsfromvalidation.mapped(),
     });
   }
+  kafka.make_request('login', req.body, function (err, results) {
+    console.log('in result');
+    console.log(results);
+    if (err) {
+      // console.log('Inside err');
+      res.status(500).send({ error: err });
+    } else {
+      if (results === 'Please enter valid password!') {
+        res.status(401).send('Please enter valid password!');
+        return;
+      } else if (results === 'Email ID not found! Please Signup!') {
+        res.status(400).send('Email ID not found! Please Signup!');
+        return;
+      }
+      res.cookie('cookie', results.token, { maxAge: 900000, httpOnly: false, path: '/' });
+      res.status(200).send(results);
+    }
+  });
+
+  /*
   console.log(req.body.data);
   const { email, password } = req.body.data;
   const token = jwt.sign({ email }, config.passport.secret, { expiresIn: '1d' });
@@ -90,7 +126,7 @@ router.post('/login', loginValidation, async (req, res) => {
     res.status(400).send('Email ID not found! Please Signup!');
     return;
   }
-  console.log('user', user);
+  // console.log('user', user);
   const passwordcompare = await bcrypt.compare(password, user.password);
   if (passwordcompare) {
     console.log('Login successfully');
@@ -108,241 +144,7 @@ router.post('/login', loginValidation, async (req, res) => {
     res.status(401).send('Please enter valid password!');
     return;
   }
-});
-
-/*
-router.get(
-  '/getuserdetails/:id',
-  passport.authenticate('jwt', { session: false }),
-  async (req, res) => {
-    console.log('Inside getuserprofile');
-    //console.log(req.body);
-    const _id = req.params.id;
-    console.log(_id);
-    const user = await Users.findOne({ _id });
-    if (!user) {
-      res.status(400).send('Error!User Not found');
-    } else {
-      const {
-        username,
-        email,
-        userprofilephoto,
-        usercurrency,
-        userphone,
-        userlanguage,
-        usertimezone,
-      } = user;
-      res.status(200).send({
-        usersname: username,
-        email: email,
-        usersphone: userphone,
-        profphoto: userprofilephoto,
-        currencydef: usercurrency,
-        timezone: usertimezone,
-        language: userlanguage,
-      });
-    }
-  }
-);
-*/
-/*
-const upload = require('../store/imageUpload');
-const updatepic = upload.single('profile_avatar');
-
-router.post('/updateprofile', passport.authenticate('jwt', { session: false }), (req, res) => {
-  console.log('Inside  updateprofile');
-  console.log(req.body);
-  const _id = req.body.idusers;
-  const username = req.body.username;
-  const email = req.body.email;
-  const phonenumber = req.body.phonenumber;
-  const defaultcurrency = req.body.currencydef;
-  const timezone = req.body.timezone;
-  const language = req.body.language;
-  let profilephoto;
-  if (!req.file) {
-    profilephoto = req.body.profile_avatar;
-    Users.findOneAndUpdate(
-      { _id },
-      {
-        $set: {
-          username: username,
-          email: email,
-          userphone: phonenumber,
-          usercurrency: defaultcurrency,
-          userlanguage: language,
-          usertimezone: timezone,
-        },
-      },
-      { new: true }
-    )
-      .then((user) =>
-        res.status(200).send({
-          usersname: username,
-          email: email,
-          profphoto: profilephoto,
-          currencydef: defaultcurrency,
-        })
-      )
-      .catch((err) => {
-        console.log(err);
-        res.status(400).send('Error!');
-      });
-  } else {
-    updatepic(req, res, function (err) {
-      if (err) {
-        return res.json({
-          success: false,
-          errors: {
-            title: 'Image Upload Error',
-            detail: err.message,
-            error: err,
-          },
-        });
-      }
-      profilephoto = req.file.location;
-      console.log(profilephoto);
-      Users.findOneAndUpdate(
-        { _id },
-        {
-          $set: {
-            username: username,
-            email: email,
-            userphone: phonenumber,
-            usercurrency: defaultcurrency,
-            userlanguage: language,
-            usertimezone: timezone,
-            userprofilephoto: profilephoto,
-          },
-        },
-        { new: true }
-      )
-        .then((user) =>
-          res.status(200).send({
-            usersname: username,
-            email: email,
-            profphoto: profilephoto,
-            currencydef: defaultcurrency,
-          })
-        )
-        .catch((err) => {
-          console.log(err);
-          res.status(400).send('Error!');
-        });
-    });
-  }
-});
-*/
-/*
-router.get('/getuseroptions/:id', passport.authenticate('jwt', { session: false }), (req, res) => {
-  console.log(' inside getuseroptions');
-  const id = req.params.id;
-  console.log(id);
-  //const user = await Users.findOne({ _id });
-  Users.find({ _id: { $ne: id } }, { username: 1, email: 1 }, (err, result) => {
-    //res.status(200).json({ data: result });
-    res.status(200).send(result);
-  });
-});
-*/
-/*
-router.post('/createnewgroup', passport.authenticate('jwt', { session: false }), (req, res) => {
-  console.log('Inside  createnewgroup');
-  console.log(req.body);
-  console.log(req.body);
-  const _id = req.body.idusers;
-  const grpname = req.body.group_name;
-  const groupcreatedbyemail = req.body.groupcreatedbyemail;
-  const grpmemadded = { type: 'gpemails', gpemails: req.body.gpmememails };
-  console.log(grpmemadded);
-  var stringgpmemadded = JSON.stringify(req.body.gpmememails);
-  var replacebraces = stringgpmemadded.replace(/[\[\]\'\"]/g, '');
-  var gpmems = replacebraces.split(',');
-  let groupphoto;
-  console.log(groupcreatedbyemail, _id, grpmemadded, grpname, gpmems);
-  if (!req.file) {
-    groupphoto = req.body.group_avatar;
-    const data = {
-      grpname,
-      gpmems,
-    };
-    new Groups(data).save();
-
-    Users.findOneAndUpdate(
-      { _id },
-      {
-        $set: {
-          username: username,
-          email: email,
-          userphone: phonenumber,
-          usercurrency: defaultcurrency,
-          userlanguage: language,
-          usertimezone: timezone,
-        },
-      },
-      { new: true }
-    )
-      .then((user) =>
-        res.status(200).send({
-          usersname: username,
-          email: email,
-          profphoto: profilephoto,
-          currencydef: defaultcurrency,
-        })
-      )
-      .catch((err) => {
-        console.log(err);
-        res.status(400).send('Error!');
-      });
-  } else {
-    updatepic(req, res, function (err) {
-      if (err) {
-        return res.json({
-          success: false,
-          errors: {
-            title: 'Image Upload Error',
-            detail: err.message,
-            error: err,
-          },
-        });
-      }
-      profilephoto = req.file.location;
-      console.log(profilephoto);
-      Users.findOneAndUpdate(
-        { _id },
-        {
-          $set: {
-            username: username,
-            email: email,
-            userphone: phonenumber,
-            usercurrency: defaultcurrency,
-            userlanguage: language,
-            usertimezone: timezone,
-            userprofilephoto: profilephoto,
-          },
-        },
-        { new: true }
-      )
-        .then((user) =>
-          res.status(200).send({
-            usersname: username,
-            email: email,
-            profphoto: profilephoto,
-            currencydef: defaultcurrency,
-          })
-        )
-        .catch((err) => {
-          console.log(err);
-          res.status(400).send('Error!');
-        });
-    });
-  }
-});
-*/
-router.get('/users', passport.authenticate('jwt', { session: false }), (req, res) => {
-  Users.find({}, (err, result) => {
-    res.status(200).json({ data: result });
-  });
+  */
 });
 
 module.exports = router;

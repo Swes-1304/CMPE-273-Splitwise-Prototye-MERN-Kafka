@@ -10,7 +10,7 @@ mongoose
   .connect(
     'mongodb+srv://sjsuswes:Swetha1234@cluster0.ikmnj.mongodb.net/myFirstDatabase?retryWrites=true&w=majority',
     {
-      poolSize: 10,
+      poolSize: 500,
     }
   )
   .then(

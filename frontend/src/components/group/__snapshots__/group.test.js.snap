@@ -8,15 +8,14 @@ Array [
         className="navbar-default navbar navbar-expand navbar-light"
       >
         <a
-          className="navbar-brand"
-          classname="Navbar-Brand"
+          className="Navbar-Brand navbar-brand"
           href="/"
           variant="light"
         >
           <img
             alt="icon"
             className="icon"
-            src="/Group_Photos/Splitwiseicon.png"
+            src="/Group_photos/Splitwiseicon.png"
           />
           <span
             className="NavItem"
@@ -174,6 +173,11 @@ Array [
     </div>
     <div
       className="grouppage-box"
+      style={
+        Object {
+          "overflowY": "auto",
+        }
+      }
     >
       <section
         className="grouppage-heading-buttons"
@@ -183,6 +187,7 @@ Array [
         >
           <h1>
             Group Name 
+            testgroup
           </h1>
           <ul
             className="grouppage-button"
@@ -211,20 +216,30 @@ Array [
         </section>
         <section
           className="grouppage-center-sec"
+          style={
+            Object {
+              "overflowY": "auto",
+            }
+          }
         >
           <div
             className="grouppage-center-section-block"
           />
           <div
             className="grouppage-center-section-block"
+            style={
+              Object {
+                "overflowY": "auto",
+              }
+            }
           >
             <br />
             <div
               className="grouppage-block-border"
             >
-              <h2>
+              <h7>
                 No transactions to display!
-              </h2>
+              </h7>
             </div>
           </div>
         </section>
@@ -234,13 +249,82 @@ Array [
       className="grouppage-right"
     />
     <div
-      className="title"
+      className="title1"
+    >
+      <div>
+         
+        <h2>
+          Groups Summary
+        </h2>
+        <ul
+          className="group-expenses-group"
+        >
+          <li>
+            <p>
+              <span>
+                 
+                <b>
+                   
+                </b>
+                 owes
+                 
+              </span>
+              <b
+                style={
+                  Object {
+                    "color": "#ff652f",
+                    "text-weight": "bold",
+                  }
+                }
+              >
+                 
+              </b>
+              in Total
+               
+            </p>
+          </li>
+        </ul>
+        <h2>
+           Details :
+        </h2>
+        <ul
+          className="group-expenses-group"
+        >
+          <li>
+            <p
+              style={
+                Object {
+                  "width": "100px",
+                }
+              }
+            >
+               owes 
+               
+              <b
+                style={
+                  Object {
+                    "color": "#ff652f",
+                    "text-weight": "bold",
+                  }
+                }
+              />
+            </p>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <p
+      className="errmsg"
+      style={
+        Object {
+          "color": "maroon",
+        }
+      }
     >
        
-    </div>
-    <h5>
-      NONE HAVE ACCEPTED THE INVITES TO THE GROUP!
-    </h5>
+      
+       
+    </p>
   </div>,
   " ",
 ]

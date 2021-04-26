@@ -3,6 +3,23 @@ var connection = new require('./kafka/Connection');
 //var signin = require('./services/signin.js');
 var addbill = require('./services/addbill');
 var addcomment = require('./services/addcomment');
+var login = require('./services/login');
+var signup = require('./services/signup');
+var creategroup = require('./services/creategroup');
+var acceptinvitation = require('./services/acceptinvitation');
+var denyinvitation = require('./services/denyinvitation');
+var leavegroup = require('./services/leavegroup');
+var updateprofile = require('./services/updateprofile');
+var settleup = require('./services/settleup');
+var removecomment = require('./services/removecomment');
+var getuserdetails = require('./services/getuserdetails');
+var getuseroptions = require('./services/getuseroptions');
+var getusergroups = require('./services/getusergroups');
+var getgroupinvites = require('./services/getgroupinvites');
+var getgrpexpenses = require('./services/getgrpexpenses');
+var getsummaryexpenses = require('./services/getsummaryexpenses');
+var gettotalbalances = require('./services/gettotalbalances');
+var getrecentacitvities = require('./services/getrecentactivities');
 
 function handleTopicRequest(topic_name, fname) {
   //var topic_name = 'root_topic';
@@ -49,3 +66,20 @@ function handleTopicRequest(topic_name, fname) {
 // handleTopicRequest("post_book",Books)
 handleTopicRequest('add_bill1', addbill);
 handleTopicRequest('add_comment', addcomment);
+handleTopicRequest('login', login);
+handleTopicRequest('signup', signup);
+handleTopicRequest('create_group', creategroup);
+handleTopicRequest('accept_invite', acceptinvitation);
+handleTopicRequest('deny_invite', denyinvitation);
+handleTopicRequest('leave_group', leavegroup);
+handleTopicRequest('update_profile', updateprofile);
+handleTopicRequest('settle_up', settleup);
+handleTopicRequest('remove_comment', removecomment);
+handleTopicRequest('get_userdetails', getuserdetails);
+handleTopicRequest('get_useroptions', getuseroptions);
+handleTopicRequest('get_usergroups', getusergroups);
+handleTopicRequest('get_groupinvites', getgroupinvites);
+handleTopicRequest('get_grpexpenses', getgrpexpenses);
+handleTopicRequest('get_summaryexpenses', getsummaryexpenses);
+handleTopicRequest('get_totalbalances', gettotalbalances);
+handleTopicRequest('get_recentactivities', getrecentacitvities);
