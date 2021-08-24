@@ -6,8 +6,8 @@ const config = {
   env: {
     mongoDB:
       'mongodb+srv://sjsuswes:Swetha1234@cluster0.ikmnj.mongodb.net/myFirstDatabase?retryWrites=true&w=majority',
-    S3_ACCESS_KEY: 'AKIAJSP2ZFMVUPCPOXLA',
-    S3_ACCESS_SECRET: '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',
+    S3_ACCESS_KEY: '',
+    S3_ACCESS_SECRET: '',
   },
 };
 const underscoreId = '_id';
